@@ -1,0 +1,195 @@
+{% extends "gin_scoring/_layout.html" %}
+
+{% macro display_player(name, is_winner) -%}
+    {% if is_winner %}
+        <span class="icon-text winner-name">
+            <span>{{ name|title }}</span>&nbsp;(<span class="icon"><i class="fas fa-trophy"></i></span>)
+        </span>
+    {% else %}
+        <span>{{ name|title }}</span>
+    {% endif %}
+{%- endmacro %}
+
+{% block extrahead %}
+    <style>
+        .winner-name .icon {
+           margin-left: 0 !important;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1 class="title has-text-centered">Gin Rummy hall of fame</h1>
+    
+    <section>
+        <h2 class="subtitle">New game result</h2>
+        
+        <form action="{{ url("html_views:post_game_result") }}" method="post">
+            {{ csrf_input }}
+            <div class="field">
+                <label class="label north-player-color" for="player_north_name">"North" player name</label>
+                <div class="control has-icons-left">
+                    <input type="text" name="player_north_name" id="player_north_name" value="Rachel" class="input" required>
+                    <span class="icon is-small is-left"><i class="fas fa-user"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label south-player-color" for="player_south_name">"South" player name</label>
+                <div class="control has-icons-left">
+                    <input type="text" name="player_south_name" id="player_south_name" value="Olivier" class="input" required>
+                    <span class="icon is-small is-left"> <i class="fas fa-user"></i></span>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">Outcome</label>
+                <div class="control">
+                    <label class="radio">
+                      <input type="radio" name="outcome" value="knock" required>
+                      Knock
+                    </label>
+                    <label class="radio">
+                      <input type="radio" name="outcome" value="gin" required>
+                      Gin
+                    </label>
+                    <label class="radio">
+                      <input type="radio" name="outcome" value="big_gin" required>
+                      Big Gin
+                    </label>
+                    <label class="radio">
+                      <input type="radio" name="outcome" value="draw" required>
+                      Draw
+                    </label>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label" for="winner">Winner</label>
+                <div class="control">
+                    <label class="radio north-player-color has-text-weight-bold">
+                      <input type="radio" name="winner_name" id="winner_north" required>
+                      <span id="winner_north_name"></span>
+                    </label>
+                    <label class="radio south-player-color has-text-weight-bold">
+                      <input type="radio" name="winner_name" id="winner_south" required>
+                      <span id="winner_south_name"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label" for="deadwood_value">Deadwood value</label>
+                <div class="control has-icons-left">
+                    <input type="number" name="deadwood_value" id="deadwood_value" min="0" max="100" step="1" class="input" required>
+                    <span class="icon is-small is-left"> <i class="fas fa-leaf"></i></span>
+                </div>
+            </div>
+            <div class="has-text-centered">
+                <input type="submit" class="button is-link" value="Submit game result">
+            </div>
+        </form>
+    </section>
+    
+    <section>
+        <h2 class="subtitle">Hall of fame</h2>
+    
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th># of games</th>
+                    <th>Total score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player_score in hall_of_fame %}
+                    <tr>
+                        <td>
+                            {% if loop.first %}
+                                 <span class="icon-text">
+                                    <span class="icon"><i class="fas fa-trophy"></i></span>
+                                    <span>{{ player_score.winner_name|title }}</span>
+                                </span>
+                            {% else %}
+                                {{ player_score.winner_name|title }}
+                            {% endif %}
+                        </td>
+                        <td>{{ player_score.count }}</td>
+                        <td>{{ player_score.total }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    
+    <section>
+        <h2 class="subtitle">Last game results</h2>
+    
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Players</th>
+                    <th>Outcome</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in last_game_results %}
+                    <tr>
+                        <td>{{ result.created_at|date("D j b H:i") }}</td>
+                        <td>
+                            {{ display_player(result.player_north_name, is_winner=(result.player_north_name == result.winner_name)) }}
+                            &amp; 
+                            {{ display_player(result.player_south_name, is_winner=(result.player_south_name == result.winner_name)) }}
+                        </td>
+                        <td>
+                            {% if not result.is_draw %}
+                                <b>{{ result.winner_name|title }}</b> won with a {{ result.outcome }}
+                            {% else %}
+                                Draw
+                            {% endif %}
+                        </td>
+                        <td class="has-text-right">{{ result.winner_score }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    
+    <script>
+      (function () {
+         const playerNorthNameInput = document.getElementById("player_north_name");
+         const playerSouthNameInput = document.getElementById("player_south_name");
+         const winnerNorthRadio = document.getElementById("winner_north");
+         const winnerNorthRadioLabel = document.getElementById("winner_north_name");
+         const winnerSouthRadio = document.getElementById("winner_south");
+         const winnerSouthRadioLabel = document.getElementById("winner_south_name");
+         
+        function updatePlayerNorthName(newName) {
+           winnerNorthRadio.value = newName;
+           winnerNorthRadioLabel.innerText = newName;
+        }
+         
+        function updatePlayerSouthName(newName) {
+           winnerSouthRadio.value = newName;
+           winnerSouthRadioLabel.innerText = newName;
+        }
+        
+        updatePlayerNorthName(playerNorthNameInput.value);
+        updatePlayerSouthName(playerSouthNameInput.value);
+          
+        document.addEventListener("readystatechange", function onDocumentReady() {
+          for (const eventName of ["keyup", "change"]) {
+             playerNorthNameInput.addEventListener(eventName, function (e) {
+               const playerName = e.target.value;
+               updatePlayerNorthName(playerName)
+             });
+             playerSouthNameInput.addEventListener(eventName, function (e) {
+               const playerName = e.target.value;
+               updatePlayerSouthName(playerName)
+             });
+          }
+        });
+        
+      })();
+    </script>
+{% endblock %}
