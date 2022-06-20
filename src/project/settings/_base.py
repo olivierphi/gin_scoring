@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django_extensions",
     # Our own apps:
     "apps.gin_scoring",
 ]
@@ -101,6 +100,8 @@ DATABASES = {
     "default": env.db_url("DATABASE_URL"),
 }
 
+# Sessions
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

@@ -1,0 +1,3 @@
+# This is only required to satisfy Heroku's Python build pack, which doesn't handle Poetry (yet?).
+# The real dependencies install will happen in the "bin/post_compile" file.
+poetry==1.1.13 
