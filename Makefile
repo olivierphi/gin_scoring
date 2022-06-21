@@ -26,3 +26,9 @@ code-quality/mypy: mypy_opts ?=
 code-quality/mypy: ## Python's equivalent of TypeScript
 # @link https://mypy.readthedocs.io/en/stable/
 	@PYTHONPATH=${PYTHONPATH} ${PYTHON_BINS}/mypy src/ ${mypy_opts}
+
+fly.io/deploy:
+	flyctl deploy
+
+fly.io/ssh:
+	flyctl ssh console

@@ -8,6 +8,11 @@ from .http_payloads import GameResultPayload
 api = NinjaAPI(urls_namespace="html_views")
 
 
+@api.get("/ping", url_name="ping", response={204: None})
+def ping(request: HttpRequest):
+    return 204, None
+
+
 @api.get("/", url_name="index")
 def index(request: HttpRequest):
     last_game_results = queries.last_game_results()
