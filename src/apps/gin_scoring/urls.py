@@ -1,25 +1,17 @@
-from django.db.models import Sum, Count
 from django.http import HttpRequest
-from django.shortcuts import render, redirect
-from ninja import NinjaAPI, Form
+from django.shortcuts import redirect, render
+from ninja import Form, NinjaAPI
 
-from .conversion import game_result_data_to_model
-from .http_domain import GameResultData
-from .models import GameResult
+from .domain import commands, queries
+from .http_payloads import GameResultPayload
 
 api = NinjaAPI(urls_namespace="html_views")
 
 
 @api.get("/", url_name="index")
 def index(request: HttpRequest):
-    last_game_results = GameResult.objects.all().order_by("-created_at")[:10]
-    hall_of_fame = (
-        GameResult.objects.all()
-        .values("winner_name")
-        .distinct()
-        .annotate(count=Count("winner_score"), total=Sum("winner_score"))
-        .order_by("-total")
-    )
+    last_game_results = queries.last_game_results()
+    hall_of_fame = queries.hall_of_fame()
 
     return render(
         request, "gin_scoring/index.html", {"last_game_results": last_game_results, "hall_of_fame": hall_of_fame}
@@ -27,8 +19,13 @@ def index(request: HttpRequest):
 
 
 @api.post("/game/result", url_name="post_game_result")
-def post_game_result(request: HttpRequest, game_result: GameResultData = Form(...)):
-    game_result_model = game_result_data_to_model(game_result)
-    game_result_model.save()
+def post_game_result(request: HttpRequest, game_result_payload: GameResultPayload = Form(...)):
+    commands.save_game_result(
+        player_north_name=game_result_payload.player_north_name,
+        player_south_name=game_result_payload.player_south_name,
+        outcome=game_result_payload.outcome,
+        winner_name=game_result_payload.winner_name,
+        deadwood_value=game_result_payload.deadwood_value,
+    )
 
     return redirect("html_views:index")

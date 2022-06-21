@@ -3,7 +3,7 @@
 {% macro display_player(name, is_winner) -%}
     {% if is_winner %}
         <span class="icon-text winner-name">
-            <span>{{ name|title }}</span>&nbsp;(<span class="icon"><i class="fas fa-trophy"></i></span>)
+            <span>{{ name|title }}</span><span class="icon"><i class="fas fa-trophy"></i></span>
         </span>
     {% else %}
         <span>{{ name|title }}</span>
@@ -94,12 +94,15 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>Player</th>
-                    <th># of games</th>
-                    <th>Total score</th>
+                    <th class="has-text-centered">Player</th>
+                    <th class="has-text-centered">Won rounds</th>
+                    <th class="has-text-centered">Total points</th>
+                    <th class="has-text-centered">Grand total</th>
+                    <th class="has-text-centered"></th>
                 </tr>
             </thead>
             <tbody>
+                {% set ns = namespace(previous_grand_total = 0) %}
                 {% for player_score in hall_of_fame %}
                     <tr>
                         <td>
@@ -112,9 +115,12 @@
                                 {{ player_score.winner_name|title }}
                             {% endif %}
                         </td>
-                        <td>{{ player_score.count }}</td>
-                        <td>{{ player_score.total }}</td>
+                        <td class="has-text-right">{{ player_score.win_counts }}</td>
+                        <td class="has-text-right">{{ player_score.total_score }}</td>
+                        <td class="has-text-right">{{ player_score.grand_total }}</td>
+                        <td class="has-text-right">{{ (player_score.grand_total - ns.previous_grand_total) if ns.previous_grand_total > 0 else "-" }}</td>
                     </tr>
+                    {% set ns.previous_grand_total = player_score.grand_total %}
                 {% endfor %}
             </tbody>
         </table>

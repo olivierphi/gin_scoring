@@ -1,13 +1,13 @@
 import typing as t
 
-from ninja import Schema
 import pydantic
+from ninja import Schema
 
-from .gin_rummy import GAME_OUTCOME
+from .domain.gin_rummy import GAME_OUTCOME
 from .helpers import normalize_player_name
 
 
-class GameResultData(Schema):
+class GameResultPayload(Schema):
     player_north_name: str
     player_south_name: str
     outcome: GAME_OUTCOME
@@ -41,7 +41,8 @@ class GameResultData(Schema):
     def validate_winner_name(cls, v: str, values: dict[str, t.Any]) -> str:
         is_draw = values["outcome"] == "draw"
         if is_draw:
-            v = None  # no winner name for "draw" games
+            # No winner name for "draw" games:
+            v = None  # type: ignore
         if not is_draw:
             if not v:
                 raise ValueError(f"non-draw games must have a winner name")

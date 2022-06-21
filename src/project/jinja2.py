@@ -1,7 +1,6 @@
 from django.template import defaultfilters
 from django.templatetags.static import static
 from django.urls import reverse
-
 from jinja2 import Environment
 
 
