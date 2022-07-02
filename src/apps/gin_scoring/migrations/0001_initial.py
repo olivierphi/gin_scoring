@@ -19,7 +19,13 @@ class Migration(migrations.Migration):
                 (
                     "outcome",
                     models.CharField(
-                        choices=[("knock", "knock"), ("gin", "gin"), ("big_gin", "big_gin"), ("draw", "draw")],
+                        choices=[
+                            ("knock", "knock"),
+                            ("gin", "gin"),
+                            ("big_gin", "big_gin"),
+                            ("undercut", "undercut"),
+                            ("draw", "draw"),
+                        ],
                         max_length=10,
                     ),
                 ),
