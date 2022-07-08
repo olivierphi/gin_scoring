@@ -10,12 +10,17 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "WARNING",
+        "level": env.str("DJANGO_LOG_LEVEL", default="WARNING"),
     },
     "loggers": {
         "apps": {
             "handlers": ["console"],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "level": env.str("APP_LOG_LEVEL", default="INFO"),
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": env.str("SQL_LOG_LEVEL", default="WARNING"),
             "propagate": False,
         },
     },

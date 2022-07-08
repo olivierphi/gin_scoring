@@ -1,4 +1,4 @@
-PYTHON_BINS ?= ${PWD}/.venv/bin
+PYTHON_BINS ?= ./.venv/bin
 PYTHON ?= ${PYTHON_BINS}/python
 PYTHONPATH ?= ${PWD}/src
 DJANGO_SETTINGS_MODULE ?= project.settings.development

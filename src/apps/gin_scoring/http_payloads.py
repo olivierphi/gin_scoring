@@ -38,7 +38,7 @@ class GameResultPayload(Schema):
         return values
 
     @pydantic.validator("winner_name")
-    def validate_winner_name(cls, v: str, values: dict[str, t.Any]) -> str:
+    def validate_winner_name(cls, v: str, values: dict[str, t.Any]) -> str | None:
         is_draw = values["outcome"] == "draw"
         if is_draw:
             # No winner name for "draw" games:
@@ -50,4 +50,4 @@ class GameResultPayload(Schema):
             if v not in player_names:
                 raise ValueError(f"winner name {v} is not part of the players' names '{','.join(player_names)}'")
 
-        return normalize_player_name(v)
+        return normalize_player_name(v) if v else None

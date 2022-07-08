@@ -93,7 +93,7 @@
     </section>
     
     <section>
-        <h2 class="subtitle">Hall of fame</h2>
+        <h2 class="subtitle">Global hall of fame</h2>
     
         <table class="table">
             <thead>
@@ -110,21 +110,47 @@
                 {% for player_score in hall_of_fame %}
                     <tr>
                         <td>
-                            {% if loop.first %}
-                                 <span class="icon-text">
-                                    <span class="icon"><i class="fas fa-trophy"></i></span>
-                                    <span>{{ player_score.winner_name|title }}</span>
-                                </span>
-                            {% else %}
-                                {{ player_score.winner_name|title }}
-                            {% endif %}
+                            {{ display_player(player_score.winner_name, is_winner=loop.first) }}
                         </td>
                         <td class="has-text-right">{{ player_score.win_counts }}</td>
                         <td class="has-text-right">{{ player_score.total_score }}</td>
                         <td class="has-text-right">{{ player_score.grand_total }}</td>
                         <td class="has-text-right">{{ (player_score.grand_total - ns.previous_grand_total) if ns.previous_grand_total > 0 else "-" }}</td>
                     </tr>
-                    {% set ns.previous_grand_total = player_score.grand_total %}
+                    {% set ns.previous_grand_total = player_score.grand_total|default(0, true) %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    
+    <section>
+        <h2 class="subtitle">Monthly hall of fame</h2>
+    
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="has-text-centered">Month</th>
+                    <th class="has-text-centered">Rounds played</th>
+                    <th class="has-text-centered">Winner</th>
+                    <th class="has-text-centered">Win counts</th>
+                    <th class="has-text-centered">Score delta</th>
+                    <th class="has-text-centered"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hall_of_fame_month_result in hall_of_fame_monthly %}
+                    <tr>
+                        <td>{{ hall_of_fame_month_result.month|date("m/y") }}</td>
+                        <td class="has-text-right">{{ hall_of_fame_month_result.game_counts }}</td>
+                        <td>
+                             <span class="icon-text">
+                                <span class="icon"><i class="fas fa-trophy"></i></span>
+                                <span>{{ display_player(hall_of_fame_month_result.winner_name) }}</span>
+                            </span>
+                        </td>
+                        <td class="has-text-right">{{ hall_of_fame_month_result.win_counts }}</td>
+                        <td class="has-text-right">{{ hall_of_fame_month_result.score_delta }}</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -137,7 +163,6 @@
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th>Players</th>
                     <th>Outcome</th>
                     <th>Score</th>
                 </tr>
@@ -147,18 +172,14 @@
                     <tr>
                         <td>{{ result.created_at|date("D j b H:i") }}</td>
                         <td>
-                            {{ display_player(result.player_north_name, is_winner=(result.player_north_name == result.winner_name)) }}
-                            &amp; 
-                            {{ display_player(result.player_south_name, is_winner=(result.player_south_name == result.winner_name)) }}
-                        </td>
-                        <td>
                             {% if not result.is_draw %}
-                                <b>{{ result.winner_name|title }}</b> won with a {{ result.outcome }}
+                                <b>{{ display_player(result.winner_name) }}</b> won with a {{ result.outcome }} 
+                                against {{ display_player(result.loser_name) }}
                             {% else %}
-                                Draw
+                                Draw ({{ display_player(result.player_north_name) }} &amp; {{ display_player(result.player_south_name) }})
                             {% endif %}
                         </td>
-                        <td class="has-text-right">{{ result.winner_score }}</td>
+                        <td class="has-text-right">{{ result.winner_score|default("", true) }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

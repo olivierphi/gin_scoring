@@ -17,9 +17,16 @@ def ping(request: HttpRequest):
 def index(request: HttpRequest):
     last_game_results = queries.last_game_results()
     hall_of_fame = queries.hall_of_fame()
+    hall_of_fame_monthly = queries.hall_of_fame_monthly()
 
     return render(
-        request, "gin_scoring/index.html", {"last_game_results": last_game_results, "hall_of_fame": hall_of_fame}
+        request,
+        "gin_scoring/index.html",
+        {
+            "last_game_results": last_game_results,
+            "hall_of_fame": hall_of_fame,
+            "hall_of_fame_monthly": hall_of_fame_monthly,
+        },
     )
 
 

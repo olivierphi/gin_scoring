@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from django.db import models
 
 from .domain.gin_rummy import GAME_OUTCOME
@@ -18,3 +20,7 @@ class GameResult(models.Model):
     @property
     def is_draw(self) -> bool:
         return self.outcome == "draw"
+
+    @cached_property
+    def loser_name(self) -> str:
+        return [name for name in (self.player_north_name, self.player_south_name) if name != self.winner_name][0]

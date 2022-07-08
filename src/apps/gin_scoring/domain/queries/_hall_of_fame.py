@@ -1,15 +1,17 @@
+from collections.abc import Iterator
+
 from django.db.models import Count, Sum
 
 from ...models import GameResult
 
 
-def hall_of_fame():
+def hall_of_fame() -> Iterator[GameResult]:
     # @link https://docs.djangoproject.com/en/4.0/topics/db/aggregation/
     win_counts = Count("winner_score")
     total_score = Sum("winner_score")
 
     return (
-        GameResult.objects.all()
+        GameResult.objects.filter(winner_name__isnull=False)
         .values("winner_name")
         .distinct()
         .annotate(win_counts=win_counts, total_score=total_score)
