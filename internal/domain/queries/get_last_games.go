@@ -2,10 +2,12 @@ package queries
 
 import (
 	"context"
+
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+
 	"github.com/drbenton/gin-scoring/internal"
 	"github.com/drbenton/gin-scoring/internal/domain"
 	"github.com/drbenton/gin-scoring/internal/models"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 func GetLastGames(ctx context.Context) ([]*domain.GameResult, error) {

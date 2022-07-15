@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+
 	"github.com/drbenton/gin-scoring/internal/domain/queries"
 )
 

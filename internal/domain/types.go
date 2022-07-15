@@ -1,8 +1,9 @@
 package domain
 
 import (
-	"github.com/drbenton/gin-scoring/internal/models"
 	"github.com/volatiletech/null/v8"
+
+	"github.com/drbenton/gin-scoring/internal/models"
 )
 
 type GameOutcome string
@@ -28,4 +29,12 @@ func (r GameResult) LoserName() null.String {
 	} else {
 		return null.StringFrom(r.PlayerNorthName)
 	}
+}
+
+var ValidGameOutcomes = []GameOutcome{
+	GameOutcomeKnock,
+	GameOutcomeGin,
+	GameOutcomeBigGin,
+	GameOutcomeUndercut,
+	GameOutcomeDraw,
 }

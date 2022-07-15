@@ -2,13 +2,16 @@ package http
 
 import (
 	"embed"
-	_ "embed"
 	"fmt"
-	"github.com/drbenton/gin-scoring/internal/domain/queries"
 	"html/template"
 	"io/fs"
 	"net/http"
+	"strconv"
 	"strings"
+
+	"github.com/drbenton/gin-scoring/internal/domain"
+	"github.com/drbenton/gin-scoring/internal/domain/mutations"
+	"github.com/drbenton/gin-scoring/internal/domain/queries"
 )
 
 ////go:embed templates/_layout.gohtml
@@ -60,13 +63,13 @@ func LoadTemplates() error {
 }
 
 func HomepageHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	t, ok := templates["homepage.gohtml"]
 	if !ok {
 		http.Error(w, "Could not load template", 500)
 		return
 	}
-
-	ctx := r.Context()
 
 	lastGames, err := queries.GetLastGames(ctx)
 	if err != nil {
@@ -98,7 +101,42 @@ func HomepageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostGameResultHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	winnerName := r.PostFormValue("winner_name")
+	var winnerNamePtr *string
+	if winnerName != "" {
+		winnerNamePtr = &winnerName
+	}
+
+	deadwood, err := strconv.Atoi(r.PostFormValue("deadwood_value"))
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	cmd := mutations.SaveGameResultCommand{
+		PlayerNorthName: r.PostFormValue("player_north_name"),
+		PlayerSouthName: r.PostFormValue("player_south_name"),
+		Outcome:         domain.GameOutcome(r.PostFormValue("outcome")),
+		WinnerName:      winnerNamePtr,
+		DeadwoodValue:   uint(deadwood),
+	}
+	fmt.Printf("cmd=%#v", cmd)
+
+	_, err = mutations.SaveGameResult(ctx, cmd)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func PingHandler(w http.ResponseWriter, r *http.Request) {

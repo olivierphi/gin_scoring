@@ -173,4 +173,43 @@
         </table>
     </section>
 
+
+    <script>
+        (function () {
+            const playerNorthNameInput = document.getElementById("player_north_name");
+            const playerSouthNameInput = document.getElementById("player_south_name");
+            const winnerNorthRadio = document.getElementById("winner_north");
+            const winnerNorthRadioLabel = document.getElementById("winner_north_name");
+            const winnerSouthRadio = document.getElementById("winner_south");
+            const winnerSouthRadioLabel = document.getElementById("winner_south_name");
+
+            function updatePlayerNorthName(newName) {
+                winnerNorthRadio.value = newName;
+                winnerNorthRadioLabel.innerText = newName;
+            }
+
+            function updatePlayerSouthName(newName) {
+                winnerSouthRadio.value = newName;
+                winnerSouthRadioLabel.innerText = newName;
+            }
+
+            updatePlayerNorthName(playerNorthNameInput.value);
+            updatePlayerSouthName(playerSouthNameInput.value);
+
+            document.addEventListener("readystatechange", function onDocumentReady() {
+                for (const eventName of ["keyup", "change"]) {
+                    playerNorthNameInput.addEventListener(eventName, function (e) {
+                        const playerName = e.target.value;
+                        updatePlayerNorthName(playerName)
+                    });
+                    playerSouthNameInput.addEventListener(eventName, function (e) {
+                        const playerName = e.target.value;
+                        updatePlayerSouthName(playerName)
+                    });
+                }
+            });
+
+        })();
+    </script>
+
 {{ end }}

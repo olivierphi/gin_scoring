@@ -10,7 +10,7 @@ import (
 
 func main() {
 	winnerName := "Oliv"
-	res := mutations.SaveGameResultCommand{
+	cmd := mutations.SaveGameResultCommand{
 		PlayerNorthName: "Rae",
 		PlayerSouthName: "Oliv",
 		Outcome:         domain.GameOutcomeKnock,
@@ -18,7 +18,7 @@ func main() {
 		DeadwoodValue:   2,
 	}
 	ctx := context.Background()
-	model, err := mutations.SaveGameResult(ctx, res)
+	model, err := mutations.SaveGameResult(ctx, cmd)
 	if err != nil {
 		panic(err)
 	}

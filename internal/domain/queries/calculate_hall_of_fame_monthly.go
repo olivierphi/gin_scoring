@@ -2,10 +2,12 @@ package queries
 
 import (
 	"context"
-	"github.com/drbenton/gin-scoring/internal"
-	"github.com/volatiletech/sqlboiler/v4/queries"
 	"sort"
 	"time"
+
+	"github.com/volatiletech/sqlboiler/v4/queries"
+
+	"github.com/drbenton/gin-scoring/internal"
 )
 
 type hallOfFameMonthlyRowRaw struct {
