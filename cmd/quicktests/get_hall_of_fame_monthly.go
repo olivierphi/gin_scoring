@@ -9,11 +9,11 @@ import (
 func main() {
 	ctx := context.Background()
 
-	hallOfFameRows, err := queries.CalculateHallOfFameGlobal(ctx)
+	hallOfFameRows, err := queries.CalculateHallOfFameMonthly(ctx)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Found %d hall of fame rows\n", len(hallOfFameRows))
+	fmt.Printf("Found %d monthly hall of fame rows\n", len(hallOfFameRows))
 	for _, row := range hallOfFameRows {
 		fmt.Printf("Row: %#v\n", row)
 	}

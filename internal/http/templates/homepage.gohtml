@@ -1,6 +1,6 @@
-{{template "layout" .}}
+{{ template "layout" . }}
 
-{{define "content"}}
+{{ define "content" }}
     <h1 class="title has-text-centered">Gin Rummy hall of fame</h1>
 
     <section>
@@ -88,17 +88,57 @@
             </tr>
             </thead>
             <tbody>
-            {{range $index, $element := .hallOfFameGlobal}}
+            {{ range $index, $element := .HallOfFameGlobal }}
             <tr>
                 <td>
-                    {{ $element.WinnerName }}
+                    {{ if eq $index 0 }}
+                        <span class="icon-text">
+                            <span class="icon"><i class="fas fa-trophy"></i></span>
+                            <span>{{ $element.WinnerName|title }}</span>
+                        </span>
+                    {{ else }}
+                        {{ $element.WinnerName|title }}
+                    {{ end }}
                 </td>
                 <td class="has-text-right">{{ $element.WinCounts }}</td>
                 <td class="has-text-right">{{ $element.TotalScore }}</td>
                 <td class="has-text-right">{{ $element.GrandTotal }}</td>
                 <td class="has-text-right">{{ if gt $index 0 }}{{ $element.Delta }}{{ end }}</td>
             </tr>
-            {{end}}
+            {{ end }}
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2 class="subtitle">Monthly hall of fame</h2>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th class="has-text-centered">Month</th>
+                <th class="has-text-centered">Rounds played</th>
+                <th class="has-text-centered">Winner</th>
+                <th class="has-text-centered">Win counts</th>
+                <th class="has-text-centered">Score delta</th>
+                <th class="has-text-centered"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {{ range .HallOfFameMonthly }}
+            <tr>
+                <td>{{ .Month.Format "Jan 06" }}</td>
+                <td class="has-text-right">{{ .GameCounts }}</td>
+                <td>
+                     <span class="icon-text">
+                        <span class="icon"><i class="fas fa-trophy"></i></span>
+                        <span>{{ .WinnerName|title }}</span>
+                    </span>
+                </td>
+                <td class="has-text-right">{{ .WinCounts }}</td>
+                <td class="has-text-right">{{ .Delta }}</td>
+            </tr>
+            {{ end }}
             </tbody>
         </table>
     </section>
@@ -115,22 +155,22 @@
             </tr>
             </thead>
             <tbody>
-            {{range .LastGames}}
+            {{ range .LastGames }}
             <tr>
-                <td>{{ .CreatedAt.Format "2 Jan at 15:06" }}</td>
+                <td>{{ .CreatedAt.Format "Wed 2 Jan 15:04" }}</td>
                 <td>
                     {{ if .WinnerName.Valid }}
-                        <b>{{.WinnerName.String}}</b> won with a {{.Outcome}}
-                        against {{.LoserName.String}}
+                        <b>{{.WinnerName.String|title}}</b> won with a {{.Outcome}}
+                        against {{.LoserName.String|title}}
                     {{ else }}
                         Draw ({{ .PlayerNorthName }} &amp; {{ .PlayerSouthName }})
                     {{ end }}
                 </td>
                 <td class="has-text-right">{{ if .WinnerScore.Valid }}{{ .WinnerScore.Int16 }}{{ end }}</td>
             </tr>
-            {{end}}
+            {{ end }}
             </tbody>
         </table>
     </section>
 
-{{end}}
+{{ end }}

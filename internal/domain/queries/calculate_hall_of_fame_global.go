@@ -6,7 +6,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/queries"
 )
 
-type HallOfFameRow struct {
+type HallOfFameGlobalRow struct {
 	WinnerName string `boil:"winner_name"`
 	WinCounts  int    `boil:"win_counts"`
 	TotalScore int    `boil:"total_score"`
@@ -26,8 +26,6 @@ with first_pass as (
 		winner_score is not null
 	group by 
 		winner_name
-	order by 
-		win_counts desc
 )
 select
     winner_name,
@@ -36,10 +34,12 @@ select
    (total_score + (win_counts * 25)) as grand_total
 from
 	first_pass
+order by 
+	grand_total desc
 `
 
-func GetHallOfFameGlobal(ctx context.Context) ([]*HallOfFameRow, error) {
-	var res []*HallOfFameRow
+func CalculateHallOfFameGlobal(ctx context.Context) ([]*HallOfFameGlobalRow, error) {
+	var res []*HallOfFameGlobalRow
 	err := queries.Raw(getHallOFameGlobalSQL).Bind(ctx, internal.DB(), &res)
 	if err != nil {
 		return nil, err

@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"io/fs"
 	"net/http"
+	"strings"
 )
 
 ////go:embed templates/_layout.gohtml
@@ -41,17 +42,19 @@ func LoadTemplates() error {
 		return err
 	}
 
+	tmplFuncs := templateFuncs()
 	for _, tmpl := range tmplFiles {
 		if tmpl.IsDir() {
 			continue
 		}
 
-		pt, err := template.ParseFS(files, templatesDir+"/"+tmpl.Name(), layoutsDir+extension)
+		fileName := tmpl.Name()
+		pt, err := template.New(fileName).Funcs(tmplFuncs).ParseFS(files, templatesDir+"/"+fileName, layoutsDir+extension)
 		if err != nil {
 			return err
 		}
 
-		templates[tmpl.Name()] = pt
+		templates[fileName] = pt
 	}
 	return nil
 }
@@ -59,8 +62,7 @@ func LoadTemplates() error {
 func HomepageHandler(w http.ResponseWriter, r *http.Request) {
 	t, ok := templates["homepage.gohtml"]
 	if !ok {
-		w.WriteHeader(500)
-		fmt.Fprint(w, "Could not load template")
+		http.Error(w, "Could not load template", 500)
 		return
 	}
 
@@ -68,24 +70,29 @@ func HomepageHandler(w http.ResponseWriter, r *http.Request) {
 
 	lastGames, err := queries.GetLastGames(ctx)
 	if err != nil {
-		w.WriteHeader(500)
-		fmt.Fprint(w, err.Error())
+		http.Error(w, err.Error(), 500)
 		return
 	}
 
-	hallOfFameGlobal, err := queries.GetHallOfFameGlobal(ctx)
+	hallOfFameGlobal, err := queries.CalculateHallOfFameGlobal(ctx)
 	if err != nil {
-		w.WriteHeader(500)
-		fmt.Fprint(w, err.Error())
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	hallOfFameMonthly, err := queries.CalculateHallOfFameMonthly(ctx)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
 		return
 	}
 
 	templateData := make(map[string]interface{})
 	templateData["LastGames"] = lastGames
-	templateData["hallOfFameGlobal"] = hallOfFameGlobal
+	templateData["HallOfFameGlobal"] = hallOfFameGlobal
+	templateData["HallOfFameMonthly"] = hallOfFameMonthly
 
 	if err := t.Execute(w, templateData); err != nil {
-		fmt.Fprintf(w, "Error while rendering template: %#v", err)
+		http.Error(w, fmt.Sprintf("Error while rendering template: %v", err), 500)
 		return
 	}
 }
@@ -99,5 +106,7 @@ func PingHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func templateFuncs() map[string]interface{} {
-	return map[string]interface{}{}
+	return map[string]interface{}{
+		"title": strings.Title,
+	}
 }
