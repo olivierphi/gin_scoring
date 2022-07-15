@@ -8,7 +8,6 @@ import (
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 
-	"github.com/drbenton/gin-scoring/internal"
 	"github.com/drbenton/gin-scoring/internal/domain"
 	"github.com/drbenton/gin-scoring/internal/models"
 )
@@ -21,7 +20,7 @@ type SaveGameResultCommand struct {
 	DeadwoodValue   uint
 }
 
-func SaveGameResult(ctx context.Context, cmd SaveGameResultCommand) (*models.GameResult, error) {
+func SaveGameResult(ctx context.Context, db boil.ContextExecutor, cmd SaveGameResultCommand) (*models.GameResult, error) {
 	err := checkSaveGameResultInput(cmd)
 	if err != nil {
 		return nil, err
@@ -48,7 +47,7 @@ func SaveGameResult(ctx context.Context, cmd SaveGameResultCommand) (*models.Gam
 		WinnerName:      null.StringFromPtr(winnerNamePtr),
 		WinnerScore:     null.Int16From(int16(winnerScore)),
 	}
-	err = resultModel.Insert(ctx, internal.DB(), boil.Infer())
+	err = resultModel.Insert(ctx, db, boil.Infer())
 	if err != nil {
 		return nil, err
 	}

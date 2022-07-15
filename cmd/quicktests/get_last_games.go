@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/drbenton/gin-scoring/internal"
 	"github.com/drbenton/gin-scoring/internal/domain/queries"
 )
 
 func main() {
 	ctx := context.Background()
-
-	lastGames, err := queries.GetLastGames(ctx)
+	db := internal.DB()
+	lastGames, err := queries.GetLastGames(ctx, db)
 	if err != nil {
 		panic(err)
 	}

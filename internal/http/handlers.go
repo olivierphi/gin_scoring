@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/drbenton/gin-scoring/internal"
 	"github.com/drbenton/gin-scoring/internal/domain"
 	"github.com/drbenton/gin-scoring/internal/domain/mutations"
 	"github.com/drbenton/gin-scoring/internal/domain/queries"
@@ -71,19 +72,21 @@ func HomepageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lastGames, err := queries.GetLastGames(ctx)
+	db := internal.DB()
+
+	lastGames, err := queries.GetLastGames(ctx, db)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
 
-	hallOfFameGlobal, err := queries.CalculateHallOfFameGlobal(ctx)
+	hallOfFameGlobal, err := queries.CalculateHallOfFameGlobal(ctx, db)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
 
-	hallOfFameMonthly, err := queries.CalculateHallOfFameMonthly(ctx)
+	hallOfFameMonthly, err := queries.CalculateHallOfFameMonthly(ctx, db)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -109,6 +112,8 @@ func PostGameResultHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	db := internal.DB()
+
 	winnerName := r.PostFormValue("winner_name")
 	var winnerNamePtr *string
 	if winnerName != "" {
@@ -128,9 +133,8 @@ func PostGameResultHandler(w http.ResponseWriter, r *http.Request) {
 		WinnerName:      winnerNamePtr,
 		DeadwoodValue:   uint(deadwood),
 	}
-	fmt.Printf("cmd=%#v", cmd)
 
-	_, err = mutations.SaveGameResult(ctx, cmd)
+	_, err = mutations.SaveGameResult(ctx, db, cmd)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return

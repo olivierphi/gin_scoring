@@ -9,9 +9,10 @@ import (
 var dbConn *sql.DB
 
 func DB() *sql.DB {
+	// Naive version of a shared DB connection for the moment
+	// Will likely be mocked during tests with a DB transaction for example
 	if dbConn == nil {
-		//TODO: extract this from a Viper config
-		connStr := "postgres://ginscoringuser:localdev@localhost:5433/ginscoring?sslmode=disable"
+		connStr := Config().DatabaseURL
 
 		db, err := sql.Open("postgres", connStr)
 		if err != nil {

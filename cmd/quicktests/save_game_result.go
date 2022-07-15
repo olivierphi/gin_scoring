@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/drbenton/gin-scoring/internal"
 	"github.com/drbenton/gin-scoring/internal/domain"
 	"github.com/drbenton/gin-scoring/internal/domain/mutations"
 )
@@ -17,8 +18,10 @@ func main() {
 		WinnerName:      &winnerName,
 		DeadwoodValue:   2,
 	}
+
 	ctx := context.Background()
-	model, err := mutations.SaveGameResult(ctx, cmd)
+	db := internal.DB()
+	model, err := mutations.SaveGameResult(ctx, db, cmd)
 	if err != nil {
 		panic(err)
 	}

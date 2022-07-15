@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/drbenton/gin-scoring/internal"
 	"github.com/drbenton/gin-scoring/internal/domain/queries"
 )
 
 func main() {
 	ctx := context.Background()
-
-	hallOfFameRows, err := queries.CalculateHallOfFameMonthly(ctx)
+	db := internal.DB()
+	hallOfFameRows, err := queries.CalculateHallOfFameMonthly(ctx, db)
 	if err != nil {
 		panic(err)
 	}

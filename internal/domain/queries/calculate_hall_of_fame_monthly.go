@@ -5,9 +5,8 @@ import (
 	"sort"
 	"time"
 
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
-
-	"github.com/drbenton/gin-scoring/internal"
 )
 
 type hallOfFameMonthlyRowRaw struct {
@@ -56,9 +55,9 @@ order by
 	grand_total desc
 `
 
-func CalculateHallOfFameMonthly(ctx context.Context) ([]*HallOfFameMonthlyRow, error) {
+func CalculateHallOfFameMonthly(ctx context.Context, db boil.ContextExecutor) ([]*HallOfFameMonthlyRow, error) {
 	var rawRes []*hallOfFameMonthlyRowRaw
-	err := queries.Raw(getHallOFameMonthlySQL).Bind(ctx, internal.DB(), &rawRes)
+	err := queries.Raw(getHallOFameMonthlySQL).Bind(ctx, db, &rawRes)
 	if err != nil {
 		return nil, err
 	}

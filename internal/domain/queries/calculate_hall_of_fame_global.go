@@ -3,9 +3,8 @@ package queries
 import (
 	"context"
 
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries"
-
-	"github.com/drbenton/gin-scoring/internal"
 )
 
 type HallOfFameGlobalRow struct {
@@ -40,9 +39,9 @@ order by
 	grand_total desc
 `
 
-func CalculateHallOfFameGlobal(ctx context.Context) ([]*HallOfFameGlobalRow, error) {
+func CalculateHallOfFameGlobal(ctx context.Context, db boil.ContextExecutor) ([]*HallOfFameGlobalRow, error) {
 	var res []*HallOfFameGlobalRow
-	err := queries.Raw(getHallOFameGlobalSQL).Bind(ctx, internal.DB(), &res)
+	err := queries.Raw(getHallOFameGlobalSQL).Bind(ctx, db, &res)
 	if err != nil {
 		return nil, err
 	}
