@@ -1,4 +1,9 @@
 
+.PHONY: dev
+dev:
+	go run github.com/drbenton/gin-scoring/cmd/http_server
+
+dev:
 .PHONY: db/schema/update
 db/schema/update: host ?= localhost
 db/schema/update: port ?= 5433

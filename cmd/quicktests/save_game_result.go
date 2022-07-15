@@ -9,13 +9,13 @@ import (
 )
 
 func main() {
-	winnerName := "Rae"
+	winnerName := "Oliv"
 	res := mutations.SaveGameResultCommand{
 		PlayerNorthName: "Rae",
 		PlayerSouthName: "Oliv",
 		Outcome:         domain.GameOutcomeKnock,
 		WinnerName:      &winnerName,
-		DeadwoodValue:   12,
+		DeadwoodValue:   2,
 	}
 	ctx := context.Background()
 	model, err := mutations.SaveGameResult(ctx, res)
