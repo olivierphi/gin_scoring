@@ -1,5 +1,5 @@
-import typing as t
 from datetime import datetime
+from typing import NamedTuple
 
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncMonth
@@ -7,7 +7,7 @@ from django.db.models.functions import TruncMonth
 from ...models import GameResult
 
 
-class HallOfFameMonthResult(t.NamedTuple):
+class HallOfFameMonthResult(NamedTuple):
     month: datetime
     winner_name: str
     game_counts: int

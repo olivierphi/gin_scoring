@@ -1,10 +1,14 @@
 {% extends "gin_scoring/_layout.html" %}
 
-{% macro display_player(name, is_winner) -%}
+{% macro display_player(name, is_winner, show_icon = False) -%}
     {% if is_winner %}
-        <span class="icon-text winner-name">
+        {%  if show_icon %}
+        <span class="icon-text winner-name" data-name="{{ name|lower() }}">
             <span>{{ name|title }}</span><span class="icon"><i class="fas fa-trophy"></i></span>
         </span>
+        {% else %}
+            <span class="winner-name" data-name="{{ name|lower() }}">{{ name|title }}</span>
+        {% endif %}
     {% else %}
         <span>{{ name|title }}</span>
     {% endif %}
@@ -106,18 +110,16 @@
                 </tr>
             </thead>
             <tbody>
-                {% set ns = namespace(previous_grand_total = 0) %}
                 {% for player_score in hall_of_fame %}
                     <tr>
                         <td>
-                            {{ display_player(player_score.winner_name, is_winner=loop.first) }}
+                            {{ display_player(player_score.winner_name, is_winner=True, show_icon=loop.first) }}
                         </td>
                         <td class="has-text-right">{{ player_score.win_counts }}</td>
                         <td class="has-text-right">{{ player_score.total_score }}</td>
                         <td class="has-text-right">{{ player_score.grand_total }}</td>
-                        <td class="has-text-right">{{ (player_score.grand_total - ns.previous_grand_total) if ns.previous_grand_total > 0 else "-" }}</td>
+                        <td class="has-text-right">{{ player_score.score_delta or "-" }}</td>
                     </tr>
-                    {% set ns.previous_grand_total = player_score.grand_total|default(0, true) %}
                 {% endfor %}
             </tbody>
         </table>
@@ -143,10 +145,7 @@
                         <td>{{ hall_of_fame_month_result.month|date("m/y") }}</td>
                         <td class="has-text-right">{{ hall_of_fame_month_result.game_counts }}</td>
                         <td>
-                             <span class="icon-text">
-                                <span class="icon"><i class="fas fa-trophy"></i></span>
-                                <span>{{ display_player(hall_of_fame_month_result.winner_name) }}</span>
-                            </span>
+                            {{ display_player(hall_of_fame_month_result.winner_name, is_winner=True, show_icon=True) }}
                         </td>
                         <td class="has-text-right">{{ hall_of_fame_month_result.win_counts }}</td>
                         <td class="has-text-right">{{ hall_of_fame_month_result.score_delta }}</td>
@@ -173,7 +172,7 @@
                         <td>{{ result.created_at|date("D j b H:i") }}</td>
                         <td>
                             {% if not result.is_draw %}
-                                <b>{{ display_player(result.winner_name) }}</b> won with a {{ result.outcome }} 
+                                <b>{{ display_player(result.winner_name, is_winner=True, show_icon=False) }}</b> won with a {{ result.outcome }} 
                                 against {{ display_player(result.loser_name) }}
                             {% else %}
                                 Draw ({{ display_player(result.player_north_name) }} &amp; {{ display_player(result.player_south_name) }})
@@ -198,11 +197,26 @@
         function updatePlayerNorthName(newName) {
            winnerNorthRadio.value = newName;
            winnerNorthRadioLabel.innerText = newName;
+
+            updateWinnerNamesStyle(newName, "north");
         }
          
         function updatePlayerSouthName(newName) {
            winnerSouthRadio.value = newName;
            winnerSouthRadioLabel.innerText = newName;
+           
+            updateWinnerNamesStyle(newName, "south");
+        }
+        
+        function updateWinnerNamesStyle(winnerName, side) {
+          const winnerNameNormalised = winnerName.toLowerCase()
+           for (const winnerNameDomNode of document.querySelectorAll(`.winner-name[data-name]`)) {
+             if (winnerNameDomNode.dataset.name === winnerNameNormalised) {
+                winnerNameDomNode.classList.add(`${side}-player-color`)
+             } else {
+                winnerNameDomNode.classList.remove(`${side}-player-color`)
+             }
+           }
         }
         
         updatePlayerNorthName(playerNorthNameInput.value);

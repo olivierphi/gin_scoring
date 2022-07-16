@@ -1,6 +1,7 @@
 from functools import cached_property
 
 from django.db import models
+from django.utils import timezone
 
 from .domain.gin_rummy import GAME_OUTCOME
 
@@ -15,7 +16,7 @@ class GameResult(models.Model):
     # Computed from the previous `end_type` and `deadwood_value` fields:
     winner_score = models.PositiveSmallIntegerField(null=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     @property
     def is_draw(self) -> bool:
@@ -24,3 +25,6 @@ class GameResult(models.Model):
     @cached_property
     def loser_name(self) -> str:
         return [name for name in (self.player_north_name, self.player_south_name) if name != self.winner_name][0]
+
+    def __str__(self) -> str:
+        return f"{self.player_north_name.title()} vs {self.player_south_name.title()}, on {self.created_at.strftime('%a %d %b at %H:%M')}"
