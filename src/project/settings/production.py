@@ -1,12 +1,6 @@
-import os
-
-os.environ["NO_DOT_ENV"] = "YES"
-
 from ._base import *
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
-
-DEBUG = False
 
 SECURE_SSL_REDIRECT = True
 CSRF_COOKIE_SECURE = True

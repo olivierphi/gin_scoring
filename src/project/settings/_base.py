@@ -18,7 +18,7 @@ import environ
 BASE_DIR = Path(__file__).parent.resolve() / ".." / ".." / ".."  # points to our git repo's root
 
 env = environ.Env()
-if not os.environ.get("NO_DOT_ENV"):
+if os.environ.get("USE_DOT_ENV"):
     for env_file_name in (".env", ".env.local"):
         env_file_path = BASE_DIR / env_file_name
         try:
@@ -29,12 +29,9 @@ if not os.environ.get("NO_DOT_ENV"):
 # Quick-start development settings
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 

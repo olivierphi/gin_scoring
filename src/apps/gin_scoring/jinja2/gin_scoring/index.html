@@ -28,7 +28,7 @@
     <section>
         <h2 class="subtitle">New game result</h2>
         
-        <form action="{{ url("html_views:post_game_result") }}" method="post">
+        <form action="{{ url("post_game_result") }}" method="post">
             {{ csrf_input }}
             <div class="field">
                 <label class="label north-player-color" for="player_north_name">"North" player name</label>
