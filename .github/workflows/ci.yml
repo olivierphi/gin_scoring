@@ -1,0 +1,68 @@
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ '*' ]
+
+env:
+  DJANGO_SETTINGS_MODULE: project.settings.test
+  DATABASE_URL: postgresql://ginscoring_user:ci_password@localhost:5432/ginscoring_db
+  # Fake secrets. just for test purposes:
+  SECRET_KEY: jQlOjOWRv8NUp4cQPwfYltQDP7qS9B85OePlrqAad1hrwAsRLsaciVIClCFUBtGluMh2Y3Ks5u3ntedy
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    # Service containers to run
+    services:
+      postgres: # Label used to access the service container
+        image: postgres:13.2-alpine 
+        env:
+          POSTGRES_DB: ginscoring_db
+          POSTGRES_USER: ginscoring_user
+          POSTGRES_PASSWORD: ci_password
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.10.4
+      - name: Cache Python venv
+        uses: actions/cache@v2
+        with:
+          path: |
+            ./.venv
+          key: python-poetry-${{ hashFiles('./poetry.lock') }}
+      - name: "[Backend] Update pip, install Poetry"
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install poetry
+      - name: "[Backend] Install dependencies, setup project's base files"
+        run: |
+          make .venv
+          python -m poetry install
+      - name: "[Backend] Check code style"
+        run: |
+          make code-quality/black black_opts='--check'
+          make code-quality/isort isort_opts='--check --diff'
+      - name: "[Backend] Check Python typing"
+        run: |
+          make code-quality/mypy
+      - name: "[Backend] Test with pytest"
+        run: |
+          make test
+      - name: "[Backend] Make sure we haven't forgotten to generate any pending Django migrations"
+        run: |
+          ./.venv/bin/python src/manage.py makemigrations | grep "No changes detected"

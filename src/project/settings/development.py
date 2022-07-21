@@ -1,4 +1,10 @@
+import os
+
+os.environ["USE_DOT_ENV"] = "YES"
+
 from ._base import *
+
+DEBUG = True
 
 LOGGING = {
     "version": 1,

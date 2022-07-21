@@ -1,13 +1,12 @@
 import typing as t
 
 import pydantic
-from ninja import Schema
 
 from .domain.gin_rummy import GAME_OUTCOME
 from .helpers import normalize_player_name
 
 
-class GameResultPayload(Schema):
+class GameResultPayload(pydantic.BaseModel):
     player_north_name: str
     player_south_name: str
     outcome: GAME_OUTCOME
