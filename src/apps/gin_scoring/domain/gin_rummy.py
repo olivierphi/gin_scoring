@@ -17,4 +17,4 @@ def calculate_round_score(*, game_outcome: GAME_OUTCOME, deadwood_value: int) ->
         case "undercut":
             return 15 + deadwood_value
         case _:
-            raise NotImplementedError(f"Invalid game outcome value '{game_outcome}'")
+            raise ValueError(f"Invalid game outcome value '{game_outcome}'")

@@ -1,16 +1,13 @@
-import typing as t
-
-from django.utils.timezone import now
-
 from ...domain.gin_rummy import GAME_OUTCOME, calculate_round_score
 from ...models import GameResult
 
 
 def save_game_result(
+    *,
     player_north_name: str,
     player_south_name: str,
     outcome: GAME_OUTCOME,
-    winner_name: t.Optional[str],
+    winner_name: str | None,
     deadwood_value: int,
 ) -> GameResult:
     is_draw = outcome == "draw"
@@ -19,7 +16,6 @@ def save_game_result(
     if is_draw:
         winner_name = None
     else:
-        winner_name = winner_name
         winner_score = calculate_round_score(game_outcome=outcome, deadwood_value=deadwood_value)
 
     game_result_model = GameResult(
@@ -29,7 +25,6 @@ def save_game_result(
         winner_name=winner_name,
         deadwood_value=deadwood_value,
         winner_score=winner_score,
-        created_at=now(),
     )
     game_result_model.save()
 

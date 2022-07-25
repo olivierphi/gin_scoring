@@ -35,7 +35,7 @@ def test_post_game_result_happy_path(client: Client):
         "player_south_name": "Alice",
         "outcome": "gin",
         "winner_name": "Alice",
-        "deadwood_value": 6,
+        "deadwood_value": "6",
     }
     response = client.post("/game/result", data)
     assert response.status_code == HTTPStatus.FOUND

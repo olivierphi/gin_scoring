@@ -5,7 +5,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST, require_safe
 
-from .domain import commands, queries
+from .domain import mutations, queries
 from .http_payloads import GameResultPayload
 
 
@@ -35,10 +35,10 @@ def index(request: HttpRequest) -> HttpResponse:
 def post_game_result(request: HttpRequest) -> HttpResponse:
     try:
         game_result_payload = GameResultPayload(**request.POST.dict())
-    except pydantic.ValidationError:
+    except pydantic.ValidationError as err:
         return HttpResponseBadRequest()
 
-    commands.save_game_result(
+    mutations.save_game_result(
         player_north_name=game_result_payload.player_north_name,
         player_south_name=game_result_payload.player_south_name,
         outcome=game_result_payload.outcome,

@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import datetime
 from typing import NamedTuple
 
@@ -15,7 +16,11 @@ class HallOfFameMonthResult(NamedTuple):
     score_delta: int
 
 
-def hall_of_fame_monthly():
+def hall_of_fame_monthly() -> list[HallOfFameMonthResult]:
+    # ⚠️ Probably not the very best way to achieve this...
+    # But this is a project I gave myself one single day to build,
+    # so that will do the job 😅
+
     # @link https://docs.djangoproject.com/en/4.0/topics/db/aggregation/
     win_counts = Count("winner_score")
     total_score = Sum("winner_score")
@@ -30,9 +35,9 @@ def hall_of_fame_monthly():
         .annotate(grand_total=(win_counts * 25) + total_score)
         .order_by("-month", "-grand_total")
     )
-    raw_results_per_month = {}
+    raw_results_per_month: dict[datetime, list[dict]] = defaultdict(list)
     for raw_result in raw_results:
-        raw_results_per_month.setdefault(raw_result["month"], []).append(raw_result)
+        raw_results_per_month[raw_result["month"]].append(raw_result)
 
     returned_results: list[HallOfFameMonthResult] = []
     for month, month_results in raw_results_per_month.items():
