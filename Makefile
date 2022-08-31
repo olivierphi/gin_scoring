@@ -68,8 +68,15 @@ docker/test-locally: ## Docker: launch the previously built image, listening on 
 .PHONY: fly.io/deploy
 fly.io/deploy: deploy_build_args ?=
 fly.io/deploy: ## Fly.io: deploy the previously built Docker image
-	flyctl deploy -i ${DOCKER_IMG_NAME}:${DOCKER_TAG} ${deploy_build_args}
+	flyctl deploy ${deploy_build_args}
 
 .PHONY: fly.io/ssh
 fly.io/ssh: ## Fly.io: start a SSH session within our app
 	flyctl ssh console
+
+.PHONY: fly.io/postgres-tunnel
+fly.io/postgres-tunnel: local_port ?= 5434
+fly.io/postgres-tunnel: remote_port ?= 5432
+fly.io/postgres-tunnel: postgres_app_name ?= gin-scoring-db 
+fly.io/postgres-tunnel: ## Fly.io: start a localhost tunnel to the Postgres database
+	flyctl proxy ${local_port}:${remote_port} -a ${postgres_app_name}

@@ -32,15 +32,22 @@ processes = []
     handlers = ["tls", "http"]
     port = 443
 
-  [[services.http_checks]]
-    interval = 15000
+  [[services.tcp_checks]]
     grace_period = "5s"
-    method = "get"
-    path = "/"
-    protocol = "https"
+    interval = "60s"
     restart_limit = 0
-    timeout = 1000
-    tls_skip_verify = false
+    timeout = "2s"
+
+# Fails because of ALLOWED_HOSTS and an check HTTP request coming from a different IP every time... :-/
+#  [[services.http_checks]]
+#    interval = 60000
+#    grace_period = "5s"
+#    method = "get"
+#    path = "/"
+#    protocol = "http"
+#    restart_limit = 0
+#    timeout = 1000
+#    tls_skip_verify = true
 
 [[statics]]
   guest_path = "/app/staticfiles"
