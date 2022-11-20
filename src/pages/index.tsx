@@ -1,8 +1,16 @@
+import type { GetServerSideProps } from 'next'
+
 import Head from 'next/head'
 import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import styles from '../../styles/Home.module.css'
+import {pool} from "../db";
 
-export default function Home() {
+type HomeProps = {
+  nowFromPostgres: number
+}
+
+export default function Home(props: HomeProps) {
+  console.log('props=', props)
   return (
     <div className={styles.container}>
       <Head>
@@ -17,8 +25,10 @@ export default function Home() {
         </h1>
 
         <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.tsx</code>
+          According to Postgres the current time is{' '}
+          <code className={styles.code}>{
+            new Intl.DateTimeFormat(undefined, {dateStyle: 'long', timeStyle: 'medium'}).format(new Date(props.nowFromPostgres))
+          }</code>
         </p>
 
         <div className={styles.grid}>
@@ -68,4 +78,14 @@ export default function Home() {
       </footer>
     </div>
   )
+}
+
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { rows }= await pool.query('select now()')
+  const nowFromPostgres:Date = rows[0].now
+  console.debug(' nowFromPostgres=',  nowFromPostgres)
+  return {
+    props: {nowFromPostgres: nowFromPostgres.getTime()}, // will be passed to the page component as props
+  }
 }

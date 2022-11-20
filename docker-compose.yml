@@ -1,0 +1,9 @@
+services:
+  postgres:
+      image: postgres:12.4-alpine
+      ports:
+        - 5433:5432
+      environment:
+        POSTGRES_DB: ginscoring
+        POSTGRES_USER: ginscoringuser
+        POSTGRES_PASSWORD: localdev
