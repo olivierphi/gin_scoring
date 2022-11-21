@@ -12,9 +12,9 @@ help:
 install: .venv ## Install the Python dependencies
 	${PYTHON_BINS}/poetry install
 
-dev: ./.venv/bin/django ## Start the Django development server
+dev: ./.venv/bin/flask ## Start the Flask development server
 	@PYTHONPATH=${PYTHONPATH} DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE} \
-		${PYTHON} src/manage.py runserver
+		${PYTHON} 
 
 .PHONY: test
 test: pytest_opts ?=
@@ -41,11 +41,24 @@ code-quality/mypy: ## Python's equivalent of TypeScript
 # @link https://mypy.readthedocs.io/en/stable/
 	@PYTHONPATH=${PYTHONPATH} ${PYTHON_BINS}/mypy src/ ${mypy_opts}
 
+.PHONY: db/autogenerate-migration
+db/autogenerate-migration: TITLE ?= # mandatory
+db/autogenerate-migration:
+	@[ "${TITLE}" ] || ( echo "! Make variable TITLE is not set"; exit 1 )
+	@PYTHONPATH=${PYTHONPATH} ${PYTHON_BINS}/alembic \
+		revision --autogenerate -m "${TITLE}"
+
+.PHONY: db/migrate
+db/migrate: TARGET ?= head
+db/migrate:
+	@PYTHONPATH=${PYTHONPATH} ${PYTHON_BINS}/alembic \
+		upgrade ${TARGET}
+
 .venv: ## Initialises the Python virtual environment in a ".venv" folder
 	python -m venv .venv
 	${PYTHON_BINS}/pip install -U pip poetry
 
-./.venv/bin/django: .venv install
+./.venv/bin/flask: .venv install
 
 # Here starts Docker-related stuff
 
