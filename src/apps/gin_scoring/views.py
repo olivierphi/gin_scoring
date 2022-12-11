@@ -46,4 +46,4 @@ def post_game_result(request: HttpRequest) -> HttpResponse:
         deadwood_value=game_result_payload.deadwood_value,
     )
 
-    return redirect("index")
+    return redirect("/#monthly-hall-of-fame")

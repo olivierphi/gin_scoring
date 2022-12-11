@@ -3,4 +3,6 @@
 /db/*
 !/db/.gitkeep
 
+*.sqlite3
+
 /.venv

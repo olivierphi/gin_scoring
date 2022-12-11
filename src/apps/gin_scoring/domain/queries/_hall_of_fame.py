@@ -20,7 +20,7 @@ def hall_of_fame() -> Iterator[HallOfFameResult]:
     total_score = Sum("winner_score")
 
     query_set = (
-        GameResult.objects.filter(winner_name__isnull=False)
+        GameResult.objects.filter(winner_name__isnull=False, winner_score__isnull=False)
         .values("winner_name")
         .distinct()
         .annotate(win_counts=win_counts, total_score=total_score)
