@@ -19,10 +19,11 @@ BASE_DIR = Path(__file__).parent.resolve() / ".." / ".." / ".."  # points to our
 
 env = environ.Env()
 if os.environ.get("USE_DOT_ENV"):
-    for env_file_name in (".env", ".env.local"):
+    for env_file_name in (".env.local", ".env"):
         env_file_path = BASE_DIR / env_file_name
         try:
             environ.Env.read_env(env_file_path)
+            break
         except (OSError, AttributeError):
             pass  # no .env file? No problem!
 

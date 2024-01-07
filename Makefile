@@ -74,9 +74,7 @@ fly.io/deploy: ## Fly.io: deploy the previously built Docker image
 fly.io/ssh: ## Fly.io: start a SSH session within our app
 	flyctl ssh console
 
-.PHONY: fly.io/postgres-tunnel
-fly.io/postgres-tunnel: local_port ?= 5434
-fly.io/postgres-tunnel: remote_port ?= 5432
-fly.io/postgres-tunnel: postgres_app_name ?= gin-scoring-db 
-fly.io/postgres-tunnel: ## Fly.io: start a localhost tunnel to the Postgres database
-	flyctl proxy ${local_port}:${remote_port} -a ${postgres_app_name}
+.PHONY: fly.io/download-sqlite-db-copy
+fly.io/download-sqlite-db-copy: ## Fly.io: download a local copy of the remote SQLite database
+	@flyctl ssh sftp get /sqlite_dbs/gin-scoring.prod.sqlite3
+	@mv gin-scoring.prod.sqlite3 "gin-scoring.prod.$$(date --utc --iso-8601=seconds | cut -d + -f 1).sqlite3"
