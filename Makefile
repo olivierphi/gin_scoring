@@ -37,6 +37,10 @@ db/migrate:
 	@DATABASE_URL=${DATABASE_URL} ${PYTHON_BINS}/alembic \
 		upgrade ${target}
 
+.venv: ## Initialises the Python virtual environment in a ".venv" folder
+	python -m venv .venv
+	${PYTHON_BINS}/pip install -U pip
+
 .env.local:
 	@echo "DATABASE_URL=${DATABASE_URL}" > .env.local
 
