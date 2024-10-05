@@ -7,7 +7,7 @@ DJANGO_SETTINGS_MODULE ?= project.settings.development
 
 help:
 # @link https://github.com/marmelab/javascript-boilerplate/blob/master/makefile
-	@grep -P '^[a-zA-Z/_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@grep -P '^[a-zA-Z/_.-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 install: .venv ## Install the Python dependencies
 	${PYTHON_BINS}/poetry install
@@ -73,8 +73,19 @@ fly.io/deploy: ## Fly.io: deploy the previously built Docker image
 .PHONY: fly.io/ssh
 fly.io/ssh: ## Fly.io: start a SSH session within our app
 	flyctl ssh console
-
-.PHONY: fly.io/download-sqlite-db-copy
-fly.io/download-sqlite-db-copy: ## Fly.io: download a local copy of the remote SQLite database
+                
+.PHONY: fly.io/db/local_backup
+fly.io/db/local_backup: backup_name ?= $$(date --iso-8601=seconds | cut -d + -f 1)
+fly.io/db/local_backup: ## Fly.io: backup the SQLite database locally
 	@flyctl ssh sftp get /sqlite_dbs/gin-scoring.prod.sqlite3
-	@mv gin-scoring.prod.sqlite3 "gin-scoring.prod.$$(date --utc --iso-8601=seconds | cut -d + -f 1).sqlite3"
+	@mv gin-scoring.prod.sqlite3 "gin-scoring.prod.backup.${backup_name}.sqlite3"
+	@echo "Saved to 'gin-scoring.prod.backup.${backup_name}.sqlite3'"
+                
+.PHONY: fly.io/db/prod_to_local
+fly.io/db/prod_to_local: local_db ?= ./db.sqlite3
+fly.io/db/prod_to_local: backup_name ?= ./db.local.backup.$$(date --iso-8601=seconds | cut -d + -f 1).sqlite3
+fly.io/db/prod_to_local: ## Fly.io: replace our local SQLite database with the one from the prod environment
+	@mv "${local_db}" "${backup_name}"
+	@flyctl ssh sftp get /sqlite_dbs/gin-scoring.prod.sqlite3
+	@mv gin-scoring.prod.sqlite3 "${local_db}"
+	@echo "Replaced local DB with a copy from the production DB. The previous local DB has been saved as '${backup_name}'."
