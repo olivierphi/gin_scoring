@@ -16,7 +16,9 @@ def save_game_result(
     if is_draw:
         winner_name = None
     else:
-        winner_score = calculate_round_score(game_outcome=outcome, deadwood_value=deadwood_value)
+        winner_score = calculate_round_score(
+            game_outcome=outcome, deadwood_value=deadwood_value
+        )
 
     game_result_model = GameResult(
         player_north_name=player_north_name,

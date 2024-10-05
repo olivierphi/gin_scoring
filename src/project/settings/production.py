@@ -1,17 +1,24 @@
 from ._base import *
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
+ALLOWED_HOSTS = env["ALLOWED_HOSTS"].split(",")
 
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = bool(env.get("SECURE_SSL_REDIRECT", "1"))
+if "CSRF_TRUSTED_ORIGINS" in env:
+    CSRF_TRUSTED_ORIGINS = env["CSRF_TRUSTED_ORIGINS"].split(",")
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
 # Static assets served by Whitenoise on production
-# @link https://devcenter.heroku.com/articles/django-assets
 # @link http://whitenoise.evans.io/en/stable/
-STATIC_ROOT = BASE_DIR / "staticfiles"
 MIDDLEWARE.append("whitenoise.middleware.WhiteNoiseMiddleware")
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Logging
 LOGGING = {

@@ -4,5 +4,6 @@
 !/db/.gitkeep
 
 *.sqlite3
+*.csv
 
 /.venv

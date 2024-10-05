@@ -1,53 +1,54 @@
-# Simplistic Dockerfile, does the job for the moment but we should rather use a multi-steps one :-)
-ARG PYTHON_VERSION=3.10
+FROM python:3.11-slim-bookworm AS backend_build
 
-FROM python:${PYTHON_VERSION} AS build
+ENV POETRY_VERSION=1.8.3
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=0 PYTHONUNBUFFERED=1
 
-RUN apt-get update && apt-get install -y \
-    python3-pip \
-    python3-venv \
-    python3-dev \
-    python3-setuptools \
-    python3-wheel \
-    libpq-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN pip install poetry
+RUN pip install --upgrade pip
+RUN pip install poetry==${POETRY_VERSION}
 
 RUN mkdir -p /app
 WORKDIR /app
 
-RUN python -m venv .venv
+RUN python -m venv --symlinks .venv
 
 COPY pyproject.toml poetry.lock ./
-RUN poetry install --no-dev
+RUN poetry install --only=main --no-root --no-interaction --no-ansi
 
-FROM python:${PYTHON_VERSION}-slim AS run
+FROM python:3.11-slim-bookworm AS backend_run
 
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y \
-    libpq5 \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=0 PYTHONUNBUFFERED=1
 
 RUN mkdir -p /app
 WORKDIR /app
 
 RUN addgroup -gid 1001 webapp
 RUN useradd --gid 1001 --uid 1001 webapp
-RUN chown -R 1001:1001 /app 
+RUN chown -R 1001:1001 /app
+
+COPY --chown=1001:1001 --from=backend_build /app/.venv .venv
+
+COPY --chown=1001:1001 src src
+COPY --chown=1001:1001 scripts scripts
+COPY --chown=1001:1001 manage.py Makefile pyproject.toml LICENSE ./
+
+ENV PATH="/app/.venv/bin:$PATH"
+RUN python -V
+
 USER 1001:1001
 
-COPY --chown=1001:1001 --from=build /app/.venv .venv
-COPY --chown=1001:1001 . .
+ENV PYTHONPATH="/app/src"
 
-ENV PYTHONPATH=/app/src
-
-RUN SECRET_KEY=does-not-matter-for-this-command DATABASE_URL=sqlite://:memory: ALLOWED_HOSTS=fly.io \
-    .venv/bin/python src/manage.py collectstatic --noinput
+RUN mkdir -p /app/staticfiles
+RUN DJANGO_SETTINGS_MODULE=project.settings.docker_build \
+    .venv/bin/python manage.py collectstatic --noinput
 
 EXPOSE 8080
 
-CMD [".venv/bin/gunicorn", "--bind", ":8080", "--workers", "2", "project.wsgi"]
+ENV DJANGO_SETTINGS_MODULE=project.settings.production
+
+ENV GUNICORN_CMD_ARGS="--bind 0.0.0.0:8080 --workers 2 --max-requests 120 --max-requests-jitter 20 --timeout 8"
+
+RUN chmod +x scripts/start_server.sh
+CMD ["scripts/start_server.sh"]

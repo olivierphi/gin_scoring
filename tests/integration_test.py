@@ -12,7 +12,11 @@ from apps.gin_scoring.models import GameResult
 
 @pytest.mark.parametrize(
     "method,expected_status_code",
-    [("GET", HTTPStatus.NO_CONTENT), ("HEAD", HTTPStatus.NO_CONTENT), ("POST", HTTPStatus.METHOD_NOT_ALLOWED)],
+    [
+        ("GET", HTTPStatus.NO_CONTENT),
+        ("HEAD", HTTPStatus.NO_CONTENT),
+        ("POST", HTTPStatus.METHOD_NOT_ALLOWED),
+    ],
 )
 def test_ping(client: Client, method: str, expected_status_code: int):
     response = client.generic(method, "/ping")

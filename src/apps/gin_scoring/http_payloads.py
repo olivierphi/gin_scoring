@@ -40,6 +40,8 @@ class GameResultPayload(pydantic.BaseModel):
         winner_name = normalize_player_name(v)
         player_names = (values["player_north_name"], values["player_south_name"])
         if winner_name not in player_names:
-            raise ValueError(f"winner name {v} is not part of the players' names '{','.join(player_names)}'")
+            raise ValueError(
+                f"winner name {v} is not part of the players' names '{','.join(player_names)}'"
+            )
 
         return winner_name

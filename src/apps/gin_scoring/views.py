@@ -34,8 +34,8 @@ def index(request: HttpRequest) -> HttpResponse:
 @require_POST
 def post_game_result(request: HttpRequest) -> HttpResponse:
     try:
-        game_result_payload = GameResultPayload(**request.POST.dict())
-    except pydantic.ValidationError as err:
+        game_result_payload = GameResultPayload(**request.POST.dict())  # type: ignore[arg-type]
+    except pydantic.ValidationError:
         return HttpResponseBadRequest()
 
     mutations.save_game_result(

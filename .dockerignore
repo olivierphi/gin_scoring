@@ -1,11 +1,11 @@
-/Makefile
 /fly.toml
 /docker-compose.yml
 
 /.env.local
+/.env.dist
 
 /.venv
 /.*_cache
 
 *.sqlite3
-
+*.csv

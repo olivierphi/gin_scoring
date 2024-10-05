@@ -24,7 +24,11 @@ class GameResult(models.Model):
 
     @cached_property
     def loser_name(self) -> str:
-        return [name for name in (self.player_north_name, self.player_south_name) if name != self.winner_name][0]
+        return [
+            name
+            for name in (self.player_north_name, self.player_south_name)
+            if name != self.winner_name
+        ][0]
 
     def __str__(self) -> str:
         return f"{self.player_north_name.title()} vs {self.player_south_name.title()}, on {self.created_at.strftime('%a %d %b at %H:%M')}"

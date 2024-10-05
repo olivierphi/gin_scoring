@@ -43,7 +43,9 @@ def hall_of_fame_monthly() -> list[HallOfFameMonthResult]:
     for month, month_results in raw_results_per_month.items():
         winner_result = month_results[0]
         winner_grand_total = winner_result["grand_total"] or 0
-        second_best_grand_total = 0 if len(month_results) < 2 else (month_results[1]["grand_total"] or 0)
+        second_best_grand_total = (
+            0 if len(month_results) < 2 else (month_results[1]["grand_total"] or 0)
+        )
         games_count = sum([res["win_counts"] for res in month_results])
 
         returned_results.append(
