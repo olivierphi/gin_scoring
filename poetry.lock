@@ -59,6 +59,17 @@ jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
 uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
+name = "certifi"
+version = "2024.8.30"
+description = "Python package for providing Mozilla's CA Bundle."
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "certifi-2024.8.30-py3-none-any.whl", hash = "sha256:922820b53db7a7257ffbda3f597266d435245903d80737e34f8a45ff3e3230d8"},
+    {file = "certifi-2024.8.30.tar.gz", hash = "sha256:bec941d2aa8195e248a60b31ff9f0558284cf01a52591ceda73ea9afffd69fd9"},
+]
+
+[[package]]
 name = "cfgv"
 version = "3.4.0"
 description = "Validate configuration and produce human readable error messages."
@@ -141,6 +152,20 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-appconf"
+version = "1.0.6"
+description = "A helper class for handling configuration defaults of packaged apps gracefully."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "django-appconf-1.0.6.tar.gz", hash = "sha256:cfe87ea827c4ee04b9a70fab90b86d704cb02f2981f89da8423cb0fabf88efbf"},
+    {file = "django_appconf-1.0.6-py3-none-any.whl", hash = "sha256:c3ae442fba1ff7ec830412c5184b17169a7a1e71cf0864a4c3f93cf4c98a1993"},
+]
+
+[package.dependencies]
+django = "*"
+
+[[package]]
 name = "django-stubs"
 version = "5.1.0"
 description = "Mypy stubs for Django"
@@ -178,6 +203,46 @@ files = [
 [package.dependencies]
 django = "*"
 typing-extensions = "*"
+
+[[package]]
+name = "django-tailwind-cli"
+version = "2.17.0"
+description = "Django and Tailwind integration based on the prebuilt Tailwind CSS CLI."
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "django_tailwind_cli-2.17.0-py3-none-any.whl", hash = "sha256:c4b1ee58da42d757438a85324430bd0345fe8845ceca9b7ed5010de11ed042d6"},
+    {file = "django_tailwind_cli-2.17.0.tar.gz", hash = "sha256:9ab8aac6e25eb0d5c59d40c8b6e0cd26608c9bb30134d2fdaf7cfdec7415e152"},
+]
+
+[package.dependencies]
+certifi = ">=2023.7.22,<2025.0.0"
+django = ">=4.2"
+django-appconf = ">=1.0.6"
+django-typer = ">=2.1.2"
+
+[package.extras]
+django-extensions = ["django-extensions (>=3.2)", "werkzeug (>=3.0)"]
+
+[[package]]
+name = "django-typer"
+version = "2.2.2"
+description = "Use Typer to define the CLI for your Django management commands."
+optional = false
+python-versions = "<4.0,>=3.8"
+files = [
+    {file = "django_typer-2.2.2-py3-none-any.whl", hash = "sha256:ad88bd590834402dd5b464e860960f75be7ab83b885bdc41f202b731e16b6dc3"},
+    {file = "django_typer-2.2.2.tar.gz", hash = "sha256:c63f294a3bed1156bdd0a8487f4a1aee6247fb9f11d9ba8de8ce25eff5ce80bc"},
+]
+
+[package.dependencies]
+click = ">=8.1.0,<9.0.0"
+Django = ">=3.2,<6.0"
+shellingham = ">=1.5.4"
+typer-slim = ">=0.12.5,<0.13.0"
+
+[package.extras]
+rich = ["rich (>=10.11.0,<14.0.0)"]
 
 [[package]]
 name = "filelock"
@@ -672,6 +737,17 @@ files = [
 ]
 
 [[package]]
+name = "shellingham"
+version = "1.5.4"
+description = "Tool to Detect Surrounding Shell"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "shellingham-1.5.4-py2.py3-none-any.whl", hash = "sha256:7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686"},
+    {file = "shellingham-1.5.4.tar.gz", hash = "sha256:8dbca0739d487e5bd35ab3ca4b36e11c4078f3a234bfce294b0a0291363404de"},
+]
+
+[[package]]
 name = "sqlparse"
 version = "0.5.1"
 description = "A non-validating SQL parser."
@@ -685,6 +761,24 @@ files = [
 [package.extras]
 dev = ["build", "hatch"]
 doc = ["sphinx"]
+
+[[package]]
+name = "typer-slim"
+version = "0.12.5"
+description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "typer_slim-0.12.5-py3-none-any.whl", hash = "sha256:9a994f721b828783dbf144e17461b1c720bb4598e0d5eff7c1b3f08ee58cb062"},
+    {file = "typer_slim-0.12.5.tar.gz", hash = "sha256:c8e3fcf93cc7dd584036df8755d2e2363f85f8a4dd028c7911eed3f00cf0ebb1"},
+]
+
+[package.dependencies]
+click = ">=8.0.0"
+typing-extensions = ">=3.7.4.3"
+
+[package.extras]
+standard = ["rich (>=10.11.0)", "shellingham (>=1.3.0)"]
 
 [[package]]
 name = "types-pyyaml"
@@ -756,4 +850,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "a202d44e101abdd3df3601025efcbec4f63bf7510c9ec5cb1739a5741b7c9b98"
+content-hash = "e2db2931262ab31b6a0e1db681302d3599f361f248eb7e505b8fde57a95e87ea"

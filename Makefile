@@ -1,7 +1,7 @@
 PYTHON_VERSION ?= 3.11
 PYTHON_BIN ?= ./.venv/bin
 PYTHON ?= ${PYTHON_BIN}/python
-DJANGO_SETTINGS_MODULE ?= project.settings.development
+DJANGO_SETTINGS_MODULE ?= gin_scoring.project.settings.development
 SUB_MAKE = ${MAKE} --no-print-directory
 
 .DEFAULT_GOAL := help
@@ -112,7 +112,7 @@ docker/local/run: ## Docker: launch the previously built image, listening on por
 	docker run -p ${port_exposed}:${port} -v "${PWD}/.docker/:/app/shared_volume/" \
 		-u ${user_id} \
 		${docker_env} ${docker_args} \
-		-e DJANGO_SETTINGS_MODULE=project.settings.production \
+		-e DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.production \
 		-e GUNICORN_CMD_ARGS='${GUNICORN_CMD_ARGS}' \
 		${DOCKER_IMG_NAME}:${DOCKER_TAG} \
 		${cmd}
@@ -127,7 +127,7 @@ docker/local/shell:
 	docker run -v "${PWD}/.docker/:/app/shared_volume/" \
 		-u ${user_id} \
 		${docker_env} ${docker_args} \
-		-e DJANGO_SETTINGS_MODULE=project.settings.production \
+		-e DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.production \
 		--entrypoint ${cmd} \
 		${DOCKER_IMG_NAME}:${DOCKER_TAG} \
 		${entrypoint_args}
@@ -147,10 +147,11 @@ fly.io/ssh: ## Fly.io: start a SSH session within our app
 	flyctl ssh console
                 
 .PHONY: fly.io/db/local_backup
+fly.io/db/local_backup: remote_db_name ?= gin-scoring.mutiplayer.prod.sqlite3
 fly.io/db/local_backup: backup_name ?= $$(date --iso-8601=seconds | cut -d + -f 1)
 fly.io/db/local_backup: ## Fly.io: backup the SQLite database locally
-	@flyctl ssh sftp get /sqlite_dbs/gin-scoring.prod.sqlite3
-	@mv gin-scoring.prod.sqlite3 "gin-scoring.prod.backup.${backup_name}.sqlite3"
+	@flyctl ssh sftp get "/sqlite_dbs/${remote_db_name}"
+	@mv "${gin-scoring.mutiplayer.prod.sqlite3}" "gin-scoring.prod.backup.${backup_name}.sqlite3"
 	@echo "Saved to 'gin-scoring.prod.backup.${backup_name}.sqlite3'"
                 
 .PHONY: fly.io/db/prod_to_local

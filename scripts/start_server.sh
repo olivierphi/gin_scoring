@@ -19,4 +19,4 @@ echo "Make sure the SQLite database is always optimised."
 
 # Go!
 echo "Starting Gunicorn."
-.venv/bin/gunicorn project.wsgi
+.venv/bin/gunicorn gin_scoring.project.wsgi

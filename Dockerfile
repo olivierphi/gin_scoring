@@ -41,12 +41,12 @@ USER 1001:1001
 ENV PYTHONPATH="/app/src"
 
 RUN mkdir -p /app/staticfiles
-RUN DJANGO_SETTINGS_MODULE=project.settings.docker_build \
+RUN DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.docker_build \
     .venv/bin/python manage.py collectstatic --noinput
 
 EXPOSE 8080
 
-ENV DJANGO_SETTINGS_MODULE=project.settings.production
+ENV DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.production
 
 ENV GUNICORN_CMD_ARGS="--bind 0.0.0.0:8080 --workers 2 --max-requests 120 --max-requests-jitter 20 --timeout 8"
 

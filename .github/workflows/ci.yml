@@ -5,7 +5,7 @@ on:
     branches: [ '*' ]
 
 env:
-  DJANGO_SETTINGS_MODULE: project.settings.test
+  DJANGO_SETTINGS_MODULE: gin_scoring.project.settings.test
   POETRY_VERSION: 1.8.3
   # Fake secrets. just for test purposes:
   SECRET_KEY: not-a-secret-but-that-is-ok
@@ -17,35 +17,31 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+        
+      - name: Install poetry
+        run: "pipx install poetry==${{ env.POETRY_VERSION }}"
+        
       - uses: actions/setup-python@v5
         with:
           python-version: 3.11
-          cache: 'poetry' 
-      - name: Cache Python venv
-        uses: actions/cache@v4
-        with:
-          path: |
-            ./.venv
-          key: python-poetry-${{ hashFiles('./poetry.lock') }}
-      - name: "[Backend] Update pip, install Poetry"
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install poetry==${{ env.POETRY_VERSION }}
-      - name: "[Backend] Install dependencies, setup project's base files"
-        run: |
-          make .venv
-          python -m poetry install
+          cache: 'poetry'
+          
+      - name: "[Backend] Install dependencies"
+        run: poetry install
+          
       - name: "[Backend] Check code style"
         run: |
-          make code-quality/black black_opts='--check'
-          make code-quality/isort isort_opts='--check --diff'
+          poetry run black --check src/ tests/
+          poetry run isort --settings-file=pyproject.toml --check --diff src/ tests/
+          
       - name: "[Backend] Check Python typing"
         run: |
-          make code-quality/mypy
-      - name: "[Backend] Test with pytest"
-        run: |
-          make test
+          poetry run mypy src/
+          
       - name: "[Backend] Make sure we haven't forgotten to generate any pending Django migrations"
         run: |
-          ./.venv/bin/python manage.py makemigrations | grep "No changes detected"
+          poetry run python manage.py makemigrations | grep "No changes detected"
+          
+      - name: "[Backend] Test with pytest"
+        run: |
+          poetry run pytest
