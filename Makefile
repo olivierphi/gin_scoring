@@ -1,7 +1,7 @@
 PYTHON_VERSION ?= 3.11
 PYTHON_BIN ?= ./.venv/bin
 PYTHON ?= ${PYTHON_BIN}/python
-DJANGO_SETTINGS_MODULE ?= project.settings.development
+DJANGO_SETTINGS_MODULE ?= gin_scoring.project.settings.development
 SUB_MAKE = ${MAKE} --no-print-directory
 
 .DEFAULT_GOAL := help
@@ -112,7 +112,7 @@ docker/local/run: ## Docker: launch the previously built image, listening on por
 	docker run -p ${port_exposed}:${port} -v "${PWD}/.docker/:/app/shared_volume/" \
 		-u ${user_id} \
 		${docker_env} ${docker_args} \
-		-e DJANGO_SETTINGS_MODULE=project.settings.production \
+		-e DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.production \
 		-e GUNICORN_CMD_ARGS='${GUNICORN_CMD_ARGS}' \
 		${DOCKER_IMG_NAME}:${DOCKER_TAG} \
 		${cmd}
@@ -127,7 +127,7 @@ docker/local/shell:
 	docker run -v "${PWD}/.docker/:/app/shared_volume/" \
 		-u ${user_id} \
 		${docker_env} ${docker_args} \
-		-e DJANGO_SETTINGS_MODULE=project.settings.production \
+		-e DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.production \
 		--entrypoint ${cmd} \
 		${DOCKER_IMG_NAME}:${DOCKER_TAG} \
 		${entrypoint_args}

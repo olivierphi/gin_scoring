@@ -44,19 +44,19 @@ combine_as_imports = true
 python_version = "3.11"
 mypy_path = "src/"
 exclude = [
-    '^src/project/settings/.*\.py$',
-    '^src/apps/[^/]+/migrations/.*\.py$',
+    '^src/gin_scoring/project/settings/.*\.py$',
+    '^src/gin_scoring/apps/[^/]+/migrations/.*\.py$',
 ]
 plugins = ["mypy_django_plugin.main"]
 
 [tool.django-stubs]
 # @link https://github.com/typeddjango/django-stubs
-django_settings_module = "project.settings.development"
+django_settings_module = "gin_scoring.project.settings.development"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--reuse-db"
-DJANGO_SETTINGS_MODULE = "project.settings.test"
+DJANGO_SETTINGS_MODULE = "gin_scoring.project.settings.test"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

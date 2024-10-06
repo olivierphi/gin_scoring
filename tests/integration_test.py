@@ -7,7 +7,7 @@ from django.forms import model_to_dict
 from django.test import Client
 from django.utils import timezone
 
-from apps.gin_scoring.models import GameResult
+from gin_scoring.apps.gin_scoring.models import GameResult
 
 
 @pytest.mark.parametrize(

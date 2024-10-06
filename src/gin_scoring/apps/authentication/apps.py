@@ -4,4 +4,4 @@ from django.apps import AppConfig
 
 
 class AuthenticationAppConfig(AppConfig):
-    name = "apps.authentication"
+    name = "gin_scoring.apps.authentication"

@@ -17,7 +17,7 @@ import dj_database_url
 
 # points to our git repo's root
 BASE_DIR = Path(
-    env.get("DJANGO_BASE_DIR", str(Path(__file__).parent / ".." / ".." / ".."))
+    env.get("DJANGO_BASE_DIR", str(Path(__file__).parent / ".." / ".." / ".." / ".."))
 ).resolve()
 
 SECRET_KEY = env["SECRET_KEY"]
@@ -37,9 +37,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Our own apps:
-    "apps.gin_scoring",
-    # not used atm, but always better to start a Django project with a custom User class :-)
-    "apps.authentication",
+    "gin_scoring.apps.gin_scoring",
+    # not used atm, but often better to start a Django project with a custom User class :-)
+    "gin_scoring.apps.authentication",
 ]
 
 MIDDLEWARE = [
@@ -52,7 +52,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "project.urls"
+ROOT_URLCONF = "gin_scoring.project.urls"
 
 TEMPLATES = [
     {
@@ -61,7 +61,7 @@ TEMPLATES = [
         "DIRS": [],
         "APP_DIRS": True,
         "OPTIONS": {
-            "environment": "project.jinja2.environment",
+            "environment": "gin_scoring.project.jinja2.environment",
         },
     },
     {
@@ -79,7 +79,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "project.wsgi.application"
+WSGI_APPLICATION = "gin_scoring.project.wsgi.application"
 
 
 # Database
