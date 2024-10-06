@@ -8,6 +8,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path("", include("gin_scoring.apps.gin_scoring.urls")),
+    path("", include("gin_scoring.apps.scoreboard.urls")),
     path("admin/", admin.site.urls),
 ]

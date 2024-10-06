@@ -15,7 +15,7 @@ class HallOfFameResult(NamedTuple):
 
 
 def hall_of_fame() -> Iterator[HallOfFameResult]:
-    # @link https://docs.djangoproject.com/en/4.0/topics/db/aggregation/
+    # @link https://docs.djangoproject.com/en/5.1/topics/db/aggregation/
     win_counts = Count("winner_score")
     total_score = Sum("winner_score")
 

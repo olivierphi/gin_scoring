@@ -5,8 +5,10 @@ from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST, require_safe
 
-from .domain import mutations, queries
-from .http_payloads import GameResultPayload
+# from .domain import mutations, queries
+# from .http_payloads import GameResultPayload
+from .models import GameResult, PlayerPair
+from .view_helpers import get_player_pair_from_request
 
 
 @require_safe
@@ -16,9 +18,18 @@ def ping(request: HttpRequest) -> HttpResponse:
 
 @require_safe
 def index(request: HttpRequest) -> HttpResponse:
-    last_game_results = queries.last_game_results()
-    hall_of_fame = queries.hall_of_fame()
-    hall_of_fame_monthly = queries.hall_of_fame_monthly()
+    try:
+        player_pair = get_player_pair_from_request(request)
+    except (ValueError, PlayerPair.DoesNotExist):
+        return render(request, "scoreboard/login.html")
+
+    last_game_results = GameResult.objects.last_game_results(
+        get_player_pair_from_request
+    )
+    hall_of_fame = GameResult.objects.hall_of_fame(get_player_pair_from_request)
+    hall_of_fame_monthly = GameResult.objects.hall_of_fame_monthly(
+        get_player_pair_from_request
+    )
 
     return render(
         request,

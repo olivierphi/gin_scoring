@@ -36,10 +36,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Third-party apps:
+    "django_tailwind_cli",
     # Our own apps:
-    "gin_scoring.apps.gin_scoring",
-    # not used atm, but often better to start a Django project with a custom User class :-)
-    "gin_scoring.apps.authentication",
+    "gin_scoring.apps.scoreboard",
 ]
 
 MIDDLEWARE = [
@@ -81,7 +81,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "gin_scoring.project.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -95,11 +94,6 @@ DATABASES = {
 # https://docs.djangoproject.com/en/5.1/topics/http/sessions/
 
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
-
-# Authentication
-# https://docs.djangoproject.com/en/5.1/topics/auth/customizing/#substituting-a-custom-user-model
-
-AUTH_USER_MODEL = "authentication.User"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -118,7 +112,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -150,7 +143,21 @@ STORAGES = {
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+_scoreboard_app_path = BASE_DIR / "src" / "gin_scoring" / "apps" / "scoreboard"
+STATICFILES_DIRS = [
+    _scoreboard_app_path / "static",
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Tailwind CSS
+# https://django-tailwind-cli.andrich.me/settings/
+
+
+TAILWIND_CLI_VERSION = "3.4.11"
+TAILWIND_CLI_PATH = BASE_DIR / "bin"
+TAILWIND_CLI_SRC_CSS = _scoreboard_app_path / "static-src" / "css" / "main.css"
+TAILWIND_CLI_DIST_CSS = "css/main.css"

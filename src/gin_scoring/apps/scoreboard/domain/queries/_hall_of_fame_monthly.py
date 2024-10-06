@@ -21,7 +21,7 @@ def hall_of_fame_monthly() -> list[HallOfFameMonthResult]:
     # But this is a project I gave myself one single day to build,
     # so that will do the job 😅
 
-    # @link https://docs.djangoproject.com/en/4.0/topics/db/aggregation/
+    # @link https://docs.djangoproject.com/en/5.1/topics/db/aggregation/
     win_counts = Count("winner_score")
     total_score = Sum("winner_score")
 

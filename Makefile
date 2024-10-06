@@ -147,10 +147,11 @@ fly.io/ssh: ## Fly.io: start a SSH session within our app
 	flyctl ssh console
                 
 .PHONY: fly.io/db/local_backup
+fly.io/db/local_backup: remote_db_name ?= gin-scoring.mutiplayer.prod.sqlite3
 fly.io/db/local_backup: backup_name ?= $$(date --iso-8601=seconds | cut -d + -f 1)
 fly.io/db/local_backup: ## Fly.io: backup the SQLite database locally
-	@flyctl ssh sftp get /sqlite_dbs/gin-scoring.prod.sqlite3
-	@mv gin-scoring.prod.sqlite3 "gin-scoring.prod.backup.${backup_name}.sqlite3"
+	@flyctl ssh sftp get "/sqlite_dbs/${remote_db_name}"
+	@mv "${gin-scoring.mutiplayer.prod.sqlite3}" "gin-scoring.prod.backup.${backup_name}.sqlite3"
 	@echo "Saved to 'gin-scoring.prod.backup.${backup_name}.sqlite3'"
                 
 .PHONY: fly.io/db/prod_to_local

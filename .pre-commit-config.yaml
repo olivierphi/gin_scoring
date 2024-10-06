@@ -12,6 +12,7 @@ repos:
         additional_dependencies: [
           "django-stubs[compatible-mypy]==5.1.0",
           "dj_database_url",
+          "django_tailwind_cli==2.17.0",
         ]
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2

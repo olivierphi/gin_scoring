@@ -8,7 +8,7 @@ processes = []
 [env]
   PORT = "8080"
   DJANGO_SETTINGS_MODULE = "gin_scoring.project.settings.flyio"
-  DATABASE_URL = "sqlite:////sqlite_dbs/gin-scoring.prod.sqlite3"
+  DATABASE_URL = "sqlite:////sqlite_dbs/gin-scoring.mutiplayer.prod.sqlite3"
 
 [mounts]
   source="sqlite_dbs"
