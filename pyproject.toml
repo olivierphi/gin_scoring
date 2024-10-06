@@ -5,8 +5,7 @@ description = ""
 authors = ["Olivier Philippon <olivier@dunsap.com>"]
 license = "GPL-3.0-or-later"
 packages = [
-    { include = "apps", from = "src" },
-    { include = "project", from = "src" },
+    { include = "gin_scoring", from = "src" },
 ]
 
 [tool.poetry.dependencies]
