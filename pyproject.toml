@@ -44,11 +44,11 @@ exclude = [
 ]
 plugins = ["mypy_django_plugin.main"]
 
-#[[tool.mypy.overrides]]
-#module = [
-#    "django_tailwind_cli",
-#]
-#ignore_missing_imports = true
+[[tool.mypy.overrides]]
+module = [
+    "colorfield.*",
+]
+ignore_missing_imports = true
 
 [tool.django-stubs]
 # @link https://github.com/typeddjango/django-stubs
