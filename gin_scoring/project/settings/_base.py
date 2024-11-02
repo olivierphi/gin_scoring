@@ -17,7 +17,7 @@ import dj_database_url
 
 # points to our git repo's root
 BASE_DIR = Path(
-    env.get("DJANGO_BASE_DIR", str(Path(__file__).parent / ".." / ".." / ".." / ".."))
+    env.get("DJANGO_BASE_DIR", str(Path(__file__).parent / ".." / ".." / ".."))
 ).resolve()
 
 SECRET_KEY = env["SECRET_KEY"]
@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Third-party apps:
-    "django_tailwind_cli",
+    "colorfield",
     # Our own apps:
     "gin_scoring.apps.scoreboard",
 ]
@@ -55,15 +55,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = "gin_scoring.project.urls"
 
 TEMPLATES = [
-    {
-        # @link https://docs.djangoproject.com/en/5.1/topics/templates/#django.template.backends.jinja2.Jinja2
-        "BACKEND": "django.template.backends.jinja2.Jinja2",
-        "DIRS": [],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "environment": "gin_scoring.project.jinja2.environment",
-        },
-    },
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
@@ -143,21 +134,12 @@ STORAGES = {
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-_scoreboard_app_path = BASE_DIR / "src" / "gin_scoring" / "apps" / "scoreboard"
-STATICFILES_DIRS = [
-    _scoreboard_app_path / "static",
-]
+# Our own setting:
+STATIC_DOWNLOADED_ASSETS_DIR = (
+    BASE_DIR / "gin_scoring" / "apps" / "scoreboard" / "static" / "scoreboard"
+)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# Tailwind CSS
-# https://django-tailwind-cli.andrich.me/settings/
-
-
-TAILWIND_CLI_VERSION = "3.4.11"
-TAILWIND_CLI_PATH = BASE_DIR / "bin"
-TAILWIND_CLI_SRC_CSS = _scoreboard_app_path / "static-src" / "css" / "main.css"
-TAILWIND_CLI_DIST_CSS = "css/main.css"

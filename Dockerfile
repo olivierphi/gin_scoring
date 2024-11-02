@@ -42,6 +42,8 @@ ENV PYTHONPATH="/app/src"
 
 RUN mkdir -p /app/staticfiles
 RUN DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.docker_build \
+    .venv/bin/python manage.py generate_assets
+RUN DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.docker_build \
     .venv/bin/python manage.py collectstatic --noinput
 
 EXPOSE 8080

@@ -37,12 +37,12 @@ code-quality/all: code-quality/black code-quality/isort code-quality/mypy  ## Ru
 code-quality/black: black_opts ?=
 code-quality/black: ## Automated 'a la Prettier' code formatting
 # @link https://black.readthedocs.io/en/stable/
-	@${PYTHON_BIN}/black ${black_opts} src/ tests/
+	@${PYTHON_BIN}/black ${black_opts} gin_scoring/ tests/
 
 .PHONY: code-quality/isort
 code-quality/isort: isort_opts ?=
 code-quality/isort: ## Automated Python imports formatting
-	@${PYTHON_BIN}/isort --settings-file=pyproject.toml ${isort_opts} src/ tests/
+	@${PYTHON_BIN}/isort --settings-file=pyproject.toml ${isort_opts} gin_scoring/ tests/
 
 .PHONY: code-quality/mypy
 code-quality/mypy: mypy_opts ?=
@@ -51,7 +51,7 @@ code-quality/mypy: ## Python's equivalent of TypeScript
 # @link https://mypy.readthedocs.io/en/stable/
 	@DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE} \
 		${PYTHON_BIN}/dotenv -f '${dotenv_file}' run -- \
-			${PYTHON_BIN}/mypy src/ ${mypy_opts}
+			${PYTHON_BIN}/mypy gin_scoring/ ${mypy_opts}
 
 django/manage: env_vars ?= 
 django/manage: dotenv_file ?= .env.local

@@ -1,0 +1,46 @@
+{% extends "scoreboard/_layout.html" %}
+
+{% block content %}
+    <article>
+        <ins>Log in to see your leaderboard and add new entries to it</ins>
+        <br>
+        <br>
+        <form action="{% url "scoreboard:log_in" %}" method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <ul>
+                
+                {% for error in form.non_field_errors %}
+                <li><mark>{{ error }}</mark></li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+            <fieldset>
+                <label>
+                    Username
+                    <input
+                            name="username"
+                            placeholder="Stu"
+                            autocomplete="given-name"
+                            value="{{ form.username.value|default_if_none:"" }}"
+                            {% if invalid_credentials %}aria-invalid="true"{% endif %}
+                    />
+                </label>
+                <label>
+                    Password
+                    <input
+                            type="password"
+                            name="password"
+                            autocomplete="current-password"
+                             {% if invalid_credentials %}aria-invalid="true"{% endif %}
+                    />
+                </label>
+            </fieldset>
+
+            <input
+                    type="submit"
+                    value="Log in"
+            />
+        </form>
+    </article>
+{% endblock content %}

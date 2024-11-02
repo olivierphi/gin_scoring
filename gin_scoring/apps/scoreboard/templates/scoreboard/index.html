@@ -1,0 +1,185 @@
+{% extends "scoreboard/_layout.html" %}
+
+{% load scoreboard %}
+
+{% block extrahead %}
+    <style>
+        /* In-document CSS! ~Dance~ Code like no one's watching 😅 */
+        .player-1, .player-2 {
+            font-weight: bold;
+        }
+
+        .player-1 {
+            color: {{ players.0.color }};
+        }
+
+        .player-2 {
+            color: {{ players.1.color }};
+        }
+        
+        article header {
+            background-color: var(--pico-secondary-focus);
+            font-weight: bold;
+        }
+        article table th {
+            color: var(--pico-primary);
+        }
+        
+        #new-game-form-outcome div {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        #new-game-form-outcome div label {
+            min-width: 30%
+        }
+    </style>
+{% endblock extrahead %}
+
+{% block content %}
+    <article id="new-game-form">
+        <header>Record new game</header>
+        <form action="{% url "scoreboard:record_game" %}" method="post">
+            {% csrf_token %}
+
+            <fieldset id="new-game-form-outcome">
+                <legend>Outcome</legend>
+                <div>
+                    {% get_possible_outcomes as possible_outcomes %}
+                    {% for outcome in possible_outcomes %}
+                        <label>
+                            <input type="radio" name="outcome"
+                                   value="{{ outcome.value }}">
+                            {{ outcome.label }}
+                        </label>
+                    {% endfor %}
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Winner</legend>
+                {% for player in players %}
+                    <label>
+                        <input type="radio" name="winner"
+                               value="{{ player.id }}" aria-describedby="winner-helper"
+                        >
+                        <span class="player-{{ player.id }}">{{ player.name }}</span>
+                    </label>
+                {% endfor %}
+                <ins id="winner-helper">
+                    <small>
+                        Leave blank if the game was a draw.
+                    </small>
+                </ins>
+            </fieldset>
+
+            <fieldset>
+                <legend>Deadwood</legend>
+                <label>
+                    <input type="number" name="deadwood"
+                           min="0" max="100" step="1"
+                           aria-describedby="deadwood-helper"
+                    >
+                    <ins id="deadwood-helper">
+                        <small>
+                            Leave blank if the game was a draw.
+                        </small>
+                    </ins>
+                </label>
+            </fieldset>
+
+            <input
+                type="submit"
+                value="Record game"
+            />
+        </form>
+    </article>
+    
+    <hr>
+
+    <article id="all-time-hall-of-fame">
+        <header>All-time leaderboard</header>
+        <table>
+            <thead>
+                <tr>
+                    <th>player</th>
+                    <th>#wins</th>
+                    <th>%wins</th>
+                    <th>total points</th>
+                    <th>grand total</th>
+                    <th>delta</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player_score in hall_of_fame %}
+                    <tr>
+                        <td><span class="player-{{ player_score.winner }}">{{ player_score.winner_name }}</span></td>
+                        <td>{{ player_score.win_counts }}</td>
+                        <td>{{ player_score.win_percentage }}%</td>
+                        <td>{{ player_score.total_score }}</td>
+                        <td>{{ player_score.grand_total }}</td>
+                        <td>{{ player_score.score_delta|default_if_none:"-" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </article>
+
+    <hr>
+
+    <article id="monthly-hall-of-fame">
+        <header>Monthly leaderboard</header>
+        <table>
+            <thead>
+                <tr>
+                    <th>month</th>
+                    <th>#games</th>
+                    <th>winner</th>
+                    <th>%wins</th>
+                    <th>delta</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for monthly_result in hall_of_fame_monthly %}
+                    <tr>
+                        <td>{{ monthly_result.month|date:"M Y" }}</td>
+                        <td>{{ monthly_result.game_counts }}</td>
+                        <td><span class="player-{{ monthly_result.winner }}">{{ monthly_result.winner_name }}</span></td>
+                        <td>{{ monthly_result.win_counts_percentage }}%</td>
+                        <td>{{ monthly_result.score_delta }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </article>
+
+    <hr>
+
+    <article id="last-games">
+        <header>Last games</header>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Outcome</th>
+                    <th>Winner</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in last_game_results %}
+                    <tr>
+                        <td>{{ result.created_at|date:"D jS M Y" }}</td>
+                        <td>
+                            {{ result.get_outcome_display }}
+                            {% if result.deadwood_value %}
+                                <br><small>(deadwood: {{ result.deadwood_value }})</small>
+                            {% endif %}
+                        </td>
+                        <td><span class="player-{{ result.winner }}">{{ result.winner_name }}</span></td>
+                        <td>{{ result.winner_score }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </article>
+{% endblock %}

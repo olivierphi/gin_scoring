@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    {% load static %}
+    {% load scoreboard %}
+    <meta charset="utf-8">
+    <title>Gin Rummy hall of fame</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="{% pico_css %}">
+    <style>
+        /* In-document CSS! ~Dance~ Code like no one's watching 😅 */
+        h1 {
+            color: var(--pico-primary-background);
+            text-align: center;
+        }
+    </style>    
+    {% block extrahead %}
+    {% endblock %}
+</head>
+<body>
+    <main class="container">
+        <h1>Gin Rummy hall of fame</h1>
+        <hr>
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %}
+                        class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>
