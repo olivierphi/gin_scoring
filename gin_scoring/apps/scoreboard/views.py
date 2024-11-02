@@ -2,8 +2,8 @@ from http import HTTPStatus
 from typing import TYPE_CHECKING
 
 from django.contrib import messages
-from django.contrib.auth import login
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.contrib.auth import login, logout
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render, resolve_url
 from django.utils.html import escape
 from django.views.decorators.http import (
@@ -25,12 +25,27 @@ def ping(request: "HttpRequest") -> HttpResponse:
     return HttpResponse(status=HTTPStatus.NO_CONTENT)
 
 
-@require_safe
+@require_http_methods(["GET", "POST"])
 def index(request: "HttpRequest") -> HttpResponse:
     try:
         player_pair = get_player_pair_from_request(request)
     except (ValueError, PlayerPair.DoesNotExist):
         return redirect("scoreboard:log_in")
+
+    if request.method == "POST":
+        form = NewGameResultForm(request.POST)
+        if form.is_valid():
+            GameResult.objects.create(
+                player_pair=player_pair,
+                deadwood_value=form.cleaned_data["deadwood"],
+                outcome=form.cleaned_data["outcome"],
+                winner=form.cleaned_data["winner"],
+            )
+            return HttpResponseRedirect(
+                f"{resolve_url('scoreboard:index')}#monthly-hall-of-fame"
+            )
+    else:
+        form = NewGameResultForm()
 
     last_game_results = GameResult.objects.get_player_pair_last_game_results(
         player_pair
@@ -44,6 +59,7 @@ def index(request: "HttpRequest") -> HttpResponse:
         request,
         "scoreboard/index.html",
         {
+            "form": form,
             "players": player_pair.players,
             "last_game_results": last_game_results,
             "hall_of_fame": hall_of_fame,
@@ -80,24 +96,8 @@ def log_in(request: "HttpRequest") -> HttpResponse:
 
 
 @require_POST
-def record_game(request: "HttpRequest") -> HttpResponse:
-    try:
-        player_pair = get_player_pair_from_request(request)
-    except (ValueError, PlayerPair.DoesNotExist):
-        return redirect("scoreboard:log_in")
+def log_out(request: "HttpRequest") -> HttpResponse:
+    logout(request)
+    messages.success(request, "You have been logged out.")
 
-    form = NewGameResultForm(request.POST)
-    if not form.is_valid():
-        messages.error(request, "Invalid form submission")
-        return redirect("scoreboard:index")
-
-    GameResult.objects.create(
-        player_pair=player_pair,
-        deadwood_value=form.cleaned_data["deadwood"],
-        outcome=form.cleaned_data["outcome"],
-        winner=form.cleaned_data["winner"],
-    )
-
-    return HttpResponseRedirect(
-        f"{resolve_url('scoreboard:index')}#monthly-hall-of-fame"
-    )
+    return redirect("scoreboard:log_in")

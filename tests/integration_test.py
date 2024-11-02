@@ -1,5 +1,6 @@
 from datetime import datetime
 from http import HTTPStatus
+from typing import TYPE_CHECKING
 from unittest.mock import ANY
 
 import pytest
@@ -7,7 +8,10 @@ from django.forms import model_to_dict
 from django.test import Client
 from django.utils import timezone
 
-from gin_scoring.apps.scoreboard.models import GameResult
+from gin_scoring.apps.scoreboard.models import GameResult, GameResultOutcome, PlayerRef
+
+if TYPE_CHECKING:
+    from gin_scoring.apps.scoreboard.models import PlayerPair
 
 
 @pytest.mark.parametrize(
@@ -24,24 +28,46 @@ def test_ping(client: Client, method: str, expected_status_code: int):
 
 
 @pytest.mark.django_db
-def test_index(client: Client):
+def test_index_anonymous(client: Client):
     """Just a smoke test for the moment"""
     response = client.get("/")
-    assert response.status_code == HTTPStatus.OK
-    assert b"Gin Rummy hall of fame" in response.content
+    assert response.status_code == HTTPStatus.FOUND
 
 
 @pytest.mark.django_db
-def test_post_game_result_happy_path(client: Client):
+def test_log_in(client: Client, player_pair: "PlayerPair"):
+    response = client.get("/login")
+    assert response.status_code == HTTPStatus.OK
+    assert b"Gin Rummy hall of fame" in response.content
+    assert b"Log in" in response.content
+
+    user = player_pair.user
+    response = client.post(
+        "/login", {"username": user.username, "password": "testpassword"}
+    )
+    assert response.status_code == HTTPStatus.FOUND
+    assert response.url == "/"  # type: ignore[attr-defined]
+
+    response = client.get("/")
+    assert response.status_code == HTTPStatus.OK
+    assert b"Gin Rummy hall of fame" in response.content
+    assert b"Log out" in response.content
+    assert b"Record game" in response.content
+    assert b"Log in" not in response.content
+
+
+@pytest.mark.django_db
+def test_record_new_game_result_happy_path(client: Client, player_pair: "PlayerPair"):
     """Just a quick smoke test for the moment"""
+    user = player_pair.user
+    client.force_login(user)
+
     data = {
-        "player_north_name": "Bob",
-        "player_south_name": "Alice",
-        "outcome": "gin",
-        "winner_name": "Alice",
-        "deadwood_value": "6",
+        "outcome": str(GameResultOutcome.GIN),
+        "winner": str(PlayerRef.PLAYER_1),
+        "deadwood": "6",
     }
-    response = client.post("/game/result", data)
+    response = client.post("/", data)
     assert response.status_code == HTTPStatus.FOUND
 
     results_in_db = GameResult.objects.all()
@@ -52,16 +78,8 @@ def test_post_game_result_happy_path(client: Client):
     now = timezone.now()
     assert (now - result_in_db.created_at).total_seconds() < 2
 
-    result_as_dict = model_to_dict(result_in_db)
-    assert result_as_dict == {
-        "id": ANY,
-        # Player names are normalised (in lower case)
-        # Also, the "north" player is always the first one in alphabetical order
-        "player_north_name": "alice",
-        "player_south_name": "bob",
-        "outcome": "gin",
-        "winner_name": "alice",
-        "deadwood_value": 6,
-        "winner_score": 6 + 25,
-        "created_at": ANY,
-    }
+    assert result_in_db.player_pair == player_pair
+    assert result_in_db.outcome == GameResultOutcome.GIN
+    assert result_in_db.winner_name == "Alice"
+    assert result_in_db.deadwood_value == 6
+    assert result_in_db.winner_score == 6 + 25

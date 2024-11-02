@@ -26,12 +26,14 @@ class NewGameResultForm(forms.Form):
             cleaned_data["winner"] = None
             cleaned_data["deadwood"] = 0
         else:
-            winner = cleaned_data.get("winner")
+            winner_raw = cleaned_data.get("winner")
+            winner = PlayerRef(int(winner_raw)) if winner_raw else None
+            cleaned_data["winner"] = winner
             deadwood = cleaned_data.get("deadwood")
-            if winner is None:
+            if not winner:
                 self.add_error("winner", "Winner must be specified")
             if deadwood is None:
-                self.add_error("deadwood", "Deadwood must be specified")
+                self.add_error("deadwood", "Deadwood value must be specified")
 
         return cleaned_data
 

@@ -78,6 +78,9 @@ class PlayerPair(models.Model):
             2, self.player_2_name, self.player_2_color
         )
 
+    def get_player_by_ref(self, player_ref: PlayerRef) -> Player:
+        return self.players[0] if player_ref == PlayerRef.PLAYER_1 else self.players[1]
+
 
 class GameResultManager(models.Manager):
     def create(self, winner_score=None, **kwargs) -> "GameResult":  # type: ignore[override]
@@ -180,20 +183,18 @@ class GameResult(models.Model):
 
 
 class HallOfFameResult(NamedTuple):
-    winner: PlayerRef
-    winner_name: str
-    win_counts: int
-    win_percentage: int
+    winner: Player
+    wins_count: int
+    wins_percentage: int
     total_score: int
     grand_total: int
     score_delta: int | None
 
 
 class HallOfFameMonthResult(NamedTuple):
-    month: dt.datetime
-    winner: PlayerRef
-    winner_name: str
+    month: dt.date
+    winner: Player
     game_counts: int
-    win_counts: int
-    win_percentage: int
+    wins_count: int
+    wins_percentage: int
     score_delta: int

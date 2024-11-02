@@ -17,7 +17,7 @@ def get_player_pair_hall_of_fame_monthly(
     player_pair: "PlayerPair",
 ) -> "Sequence[HallOfFameMonthResult]":
     # @link https://docs.djangoproject.com/en/5.1/topics/db/aggregation/
-    win_counts = Count("winner_score")
+    wins_count = Count("winner_score")
     total_score = Sum("winner_score")
 
     raw_results = (
@@ -26,9 +26,9 @@ def get_player_pair_hall_of_fame_monthly(
         .annotate(month=TruncMonth("created_at"))
         .values("month", "winner")
         .distinct()
-        .annotate(win_counts=win_counts, total_score=total_score)
+        .annotate(wins_count=wins_count, total_score=total_score)
         # Each won round is worth 25 points:
-        .annotate(grand_total=(win_counts * 25) + total_score)
+        .annotate(grand_total=(wins_count * 25) + total_score)
         .order_by("-month", "-grand_total")
     )
     raw_results_per_month: dict[dt.datetime, list[dict]] = defaultdict(list)
@@ -42,22 +42,16 @@ def get_player_pair_hall_of_fame_monthly(
         second_best_grand_total = (
             0 if len(month_results) < 2 else (month_results[1]["grand_total"] or 0)
         )
-        games_count = sum([res["win_counts"] for res in month_results])
-        winner_name = (
-            player_pair.player_1_name
-            if winner_result["winner"] == PlayerRef.PLAYER_1
-            else player_pair.player_2_name
-        )
+        games_count = sum([res["wins_count"] for res in month_results])
 
         returned_results.append(
             HallOfFameMonthResult(
                 month=month,
-                winner=winner_result["winner"],
-                winner_name=winner_name,
+                winner=player_pair.get_player_by_ref(winner_result["winner"]),
                 game_counts=games_count,
-                win_counts=winner_result["win_counts"],
-                win_percentage=(
-                    int(winner_result["win_counts"] / games_count * 100)
+                wins_count=winner_result["wins_count"],
+                wins_percentage=(
+                    int(winner_result["wins_count"] / games_count * 100)
                     if games_count
                     else 0
                 ),

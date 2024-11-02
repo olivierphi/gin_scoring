@@ -16,19 +16,16 @@
         .player-2 {
             color: {{ players.1.color }};
         }
-        
-        article header {
-            background-color: var(--pico-secondary-focus);
-            font-weight: bold;
-        }
+
         article table th {
             color: var(--pico-primary);
         }
-        
+
         #new-game-form-outcome div {
             display: flex;
             flex-wrap: wrap;
         }
+
         #new-game-form-outcome div label {
             min-width: 30%
         }
@@ -38,7 +35,7 @@
 {% block content %}
     <article id="new-game-form">
         <header>Record new game</header>
-        <form action="{% url "scoreboard:record_game" %}" method="post">
+        <form action="{% url "scoreboard:index" %}" method="post">
             {% csrf_token %}
 
             <fieldset id="new-game-form-outcome">
@@ -47,8 +44,10 @@
                     {% get_possible_outcomes as possible_outcomes %}
                     {% for outcome in possible_outcomes %}
                         <label>
-                            <input type="radio" name="outcome"
-                                   value="{{ outcome.value }}">
+                            <input type="radio" name="outcome" required
+                                   value="{{ outcome.value }}"
+                                   {% if form.cleaned_data.outcome == outcome %}checked{% endif %}
+                            >
                             {{ outcome.label }}
                         </label>
                     {% endfor %}
@@ -61,13 +60,19 @@
                     <label>
                         <input type="radio" name="winner"
                                value="{{ player.id }}" aria-describedby="winner-helper"
+                               {% if form.cleaned_data.winner == player.id %}checked{% endif %}
+                               {% if form.winner.errors %}aria-invalid="true"{% endif %}
                         >
                         <span class="player-{{ player.id }}">{{ player.name }}</span>
                     </label>
                 {% endfor %}
                 <ins id="winner-helper">
                     <small>
-                        Leave blank if the game was a draw.
+                        {% if form.winner.errors %}
+                            <span class="form-errors">{{ form.winner.errors }}</span>
+                        {% else %}
+                            Leave blank if the game was a draw.
+                        {% endif %}
                     </small>
                 </ins>
             </fieldset>
@@ -78,22 +83,34 @@
                     <input type="number" name="deadwood"
                            min="0" max="100" step="1"
                            aria-describedby="deadwood-helper"
+                           value="{{ form.deadwood.value|default_if_none:"" }}"
+                           {% if form.deadwood.errors %}aria-invalid="true"{% endif %}
                     >
                     <ins id="deadwood-helper">
                         <small>
-                            Leave blank if the game was a draw.
+                            {% if form.deadwood.errors %}
+                                <span
+                                    class="form-errors">{{ form.deadwood.errors }}</span>
+                            {% else %}
+                                Leave blank if the game was a draw.
+                            {% endif %}
                         </small>
                     </ins>
                 </label>
             </fieldset>
 
-            <input
+            <button
                 type="submit"
-                value="Record game"
-            />
+            >
+                {# Heroicon: plus-circle #}
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 19px; aspect-ratio: 1/1;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                Record game
+            </button>
         </form>
     </article>
-    
+
     <hr>
 
     <article id="all-time-hall-of-fame">
@@ -102,22 +119,25 @@
             <thead>
                 <tr>
                     <th>player</th>
-                    <th>#wins</th>
-                    <th>%wins</th>
+                    <th>wins</th>
                     <th>total points</th>
                     <th>grand total</th>
                     <th>delta</th>
                 </tr>
             </thead>
             <tbody>
-                {% for player_score in hall_of_fame %}
+                {% for entry in hall_of_fame %}
                     <tr>
-                        <td><span class="player-{{ player_score.winner }}">{{ player_score.winner_name }}</span></td>
-                        <td>{{ player_score.win_counts }}</td>
-                        <td>{{ player_score.win_percentage }}%</td>
-                        <td>{{ player_score.total_score }}</td>
-                        <td>{{ player_score.grand_total }}</td>
-                        <td>{{ player_score.score_delta|default_if_none:"-" }}</td>
+                        <td><span
+                            class="player-{{ entry.winner.id }}">{{ entry.winner.name }}</span>
+                        </td>
+                        <td>
+                            {{ entry.wins_count }}
+                            <br><small>({{ entry.wins_percentage }}%)</small>
+                        </td>
+                        <td>{{ entry.total_score }}</td>
+                        <td>{{ entry.grand_total }}</td>
+                        <td>{{ entry.score_delta|default_if_none:"-" }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -132,20 +152,23 @@
             <thead>
                 <tr>
                     <th>month</th>
-                    <th>#games</th>
                     <th>winner</th>
-                    <th>%wins</th>
+                    <th>wins</th>
                     <th>delta</th>
                 </tr>
             </thead>
             <tbody>
-                {% for monthly_result in hall_of_fame_monthly %}
+                {% for entry in hall_of_fame_monthly %}
                     <tr>
-                        <td>{{ monthly_result.month|date:"M Y" }}</td>
-                        <td>{{ monthly_result.game_counts }}</td>
-                        <td><span class="player-{{ monthly_result.winner }}">{{ monthly_result.winner_name }}</span></td>
-                        <td>{{ monthly_result.win_counts_percentage }}%</td>
-                        <td>{{ monthly_result.score_delta }}</td>
+                        <td>{{ entry.month|date:"M Y" }}</td>
+                        <td><span
+                            class="player-{{ entry.winner.id }}">{{ entry.winner.name }}</span>
+                        </td>
+                        <td>
+                            {{ entry.wins_count }} / {{ entry.game_counts }}
+                            <br><small>({{ entry.wins_percentage }}%)</small>
+                        </td>
+                        <td>{{ entry.score_delta }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -159,10 +182,10 @@
         <table>
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Outcome</th>
-                    <th>Winner</th>
-                    <th>Score</th>
+                    <th>date</th>
+                    <th>outcome</th>
+                    <th>winner</th>
+                    <th>score</th>
                 </tr>
             </thead>
             <tbody>
@@ -172,14 +195,32 @@
                         <td>
                             {{ result.get_outcome_display }}
                             {% if result.deadwood_value %}
-                                <br><small>(deadwood: {{ result.deadwood_value }})</small>
+                                <br>
+                                <small>(deadwood: {{ result.deadwood_value }})</small>
                             {% endif %}
                         </td>
-                        <td><span class="player-{{ result.winner }}">{{ result.winner_name }}</span></td>
+                        <td><span
+                            class="player-{{ result.winner }}">{{ result.winner_name|default_if_none:"-" }}</span>
+                        </td>
                         <td>{{ result.winner_score }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     </article>
+
+    <br>
+    <hr>
+    <form action="{% url "scoreboard:log_out" %}" method="post">
+        {% csrf_token %}
+        <button id="log-out-button" type="submit">
+            {# Heroicon: arrow-left-start-on-rectangle #}
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 19px; aspect-ratio: 1/1;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+            </svg>
+            Log out
+        </button>
+    </form>
+    <br>
+    <br>
 {% endblock %}
