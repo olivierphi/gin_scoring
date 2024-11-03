@@ -1,7 +1,7 @@
 import datetime as dt
 import enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Literal, NamedTuple
+from typing import Literal, NamedTuple
 
 from colorfield.fields import ColorField
 from django.db import models
@@ -9,9 +9,6 @@ from django.utils.translation import gettext_lazy as _
 
 from gin_scoring.lib.gin_rummy.consts import GameOutcome
 from gin_scoring.lib.gin_rummy.rules import calculate_round_score
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
 
 
 @enum.unique
@@ -106,7 +103,7 @@ class GameResultManager(models.Manager):
     @staticmethod
     def get_player_pair_hall_of_fame_monthly(
         player_pair: PlayerPair,
-    ) -> "Sequence[HallOfFameMonthResult]":
+    ) -> "list[HallOfFameMonthResult]":
         from .business_logic._get_player_pair_hall_of_fame_monthly import (
             get_player_pair_hall_of_fame_monthly,
         )
@@ -180,18 +177,69 @@ class GameResult(models.Model):
 
 
 class HallOfFameResult(NamedTuple):
-    winner: Player
+    player: Player
     wins_count: int
     wins_percentage: int
     total_score: int
     grand_total: int
-    score_delta: int | None
+    total_score_delta: int | None
+    grand_total_delta: int | None
 
 
 class HallOfFameMonthResult(NamedTuple):
     month: dt.date
     winner: Player
+    winner_total_score: int
+    winner_grand_total: int
     game_counts: int
     wins_count: int
     wins_percentage: int
-    score_delta: int
+    total_score_delta: int | None
+    grand_total_delta: int | None
+
+
+class CurrentMonthResult(NamedTuple):
+    player: Player
+    wins_count: int
+    wins_percentage: int
+    total_score: int
+    grand_total: int
+    total_score_delta: int | None
+    grand_total_delta: int | None
+
+
+def create_current_month_results_from_current_month_hall_of_fame(
+    *, player_pair: PlayerPair, current_month_hall_of_fame: HallOfFameMonthResult
+) -> tuple[CurrentMonthResult, CurrentMonthResult]:
+    cur_month = current_month_hall_of_fame  # let's shorten that a bit internally 😅
+    winner = cur_month.winner
+    winner_result = CurrentMonthResult(
+        player=winner,
+        wins_count=cur_month.wins_count,
+        wins_percentage=cur_month.wins_percentage,
+        total_score=cur_month.winner_total_score,
+        grand_total=cur_month.winner_grand_total,
+        total_score_delta=None,
+        grand_total_delta=None,
+    )
+
+    loser = (
+        player_pair.players[1]
+        if winner.id == PlayerRef.PLAYER_1
+        else player_pair.players[0]
+    )
+    game_counts = cur_month.game_counts
+    loser_wins_count = game_counts - winner_result.wins_count
+    loser_total_score = winner_result.total_score - (cur_month.total_score_delta or 0)
+    loser_grand_total = winner_result.grand_total - (cur_month.grand_total_delta or 0)
+    loser_result = CurrentMonthResult(
+        player=loser,
+        wins_count=loser_wins_count,
+        wins_percentage=100 - winner_result.wins_percentage,
+        total_score=loser_total_score,
+        grand_total=loser_grand_total,
+        total_score_delta=-(cur_month.total_score_delta or 0),
+        grand_total_delta=-(cur_month.grand_total_delta or 0),
+    )
+
+    return winner_result, loser_result

@@ -6,6 +6,7 @@ from django.contrib.auth import login, logout
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render, resolve_url
 from django.utils.html import escape
+from django.utils.timezone import now
 from django.views.decorators.http import (
     require_http_methods,
     require_POST,
@@ -13,7 +14,11 @@ from django.views.decorators.http import (
 )
 
 from .forms import LoginForm, NewGameResultForm
-from .models import GameResult, PlayerPair
+from .models import (
+    GameResult,
+    PlayerPair,
+    create_current_month_results_from_current_month_hall_of_fame,
+)
 from .view_helpers import get_player_pair_from_request
 
 if TYPE_CHECKING:
@@ -42,7 +47,7 @@ def index(request: "HttpRequest") -> HttpResponse:
                 winner=form.cleaned_data["winner"],
             )
             return HttpResponseRedirect(
-                f"{resolve_url('scoreboard:index')}#monthly-hall-of-fame"
+                f"{resolve_url('scoreboard:index')}#current-month"
             )
     else:
         form = NewGameResultForm()
@@ -55,6 +60,19 @@ def index(request: "HttpRequest") -> HttpResponse:
         player_pair
     )
 
+    current_month = now().date().replace(day=1)
+    current_month_results = None
+    if hall_of_fame_monthly:
+        current_month_as_str = current_month.strftime("%Y-%m")
+        if hall_of_fame_monthly[0].month.strftime("%Y-%m") == current_month_as_str:
+            current_month_scores = hall_of_fame_monthly.pop(0)
+            current_month_results = (
+                create_current_month_results_from_current_month_hall_of_fame(
+                    player_pair=player_pair,
+                    current_month_hall_of_fame=current_month_scores,
+                )
+            )
+
     return render(
         request,
         "scoreboard/index.html",
@@ -64,6 +82,8 @@ def index(request: "HttpRequest") -> HttpResponse:
             "last_game_results": last_game_results,
             "hall_of_fame": hall_of_fame,
             "hall_of_fame_monthly": hall_of_fame_monthly,
+            "current_month": current_month,
+            "current_month_results": current_month_results,
         },
     )
 

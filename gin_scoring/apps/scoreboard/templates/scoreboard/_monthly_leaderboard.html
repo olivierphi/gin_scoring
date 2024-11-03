@@ -1,0 +1,45 @@
+<article id="monthly-hall-of-fame">
+    <header>Monthly leaderboard</header>
+    <table>
+        <thead>
+            <tr>
+                <th>month</th>
+                <th>winner</th>
+                <th>wins</th>
+                <th>delta</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in hall_of_fame_monthly %}
+                <tr>
+                    <td>
+                        {{ entry.month|date:"M Y" }}
+                        <br><b>{{ entry.game_counts }}</b> games
+                    </td>
+                    <td>
+                            <span class="player-{{ entry.winner.id }}">
+                                {{ entry.winner.name }}
+                            </span>
+                    </td>
+                    <td>
+                        {% if entry.wins_percentage >= 80 %}
+                            <b>{{ entry.wins_percentage }}%</b>
+                            {% if entry.wins_percentage == 100 %}😱{% endif %}
+                        {% else %}
+                            {{ entry.wins_percentage }}%
+                        {% endif %}
+                        <br><small>({{ entry.wins_count }} wins)</small>
+                    </td>
+                    <td>
+                        {% if entry.grand_total_delta > 100 %}
+                            <b>+{{ entry.grand_total_delta }}</b>🐦‍🔥
+                        {% else %}
+                            {% if entry.grand_total_delta > 0 %}+{% endif %}{{ entry.grand_total_delta }}
+                            {% if entry.grand_total_delta < 10 %}😱{% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</article>

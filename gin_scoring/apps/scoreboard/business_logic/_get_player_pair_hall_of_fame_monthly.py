@@ -5,17 +5,15 @@ from typing import TYPE_CHECKING
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncMonth
 
-from ..models import GameResult, HallOfFameMonthResult, PlayerRef
+from ..models import GameResult, HallOfFameMonthResult
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from ..models import PlayerPair
 
 
 def get_player_pair_hall_of_fame_monthly(
     player_pair: "PlayerPair",
-) -> "Sequence[HallOfFameMonthResult]":
+) -> list[HallOfFameMonthResult]:
     # @link https://docs.djangoproject.com/en/5.1/topics/db/aggregation/
     wins_count = Count("winner_score")
     total_score = Sum("winner_score")
@@ -38,7 +36,11 @@ def get_player_pair_hall_of_fame_monthly(
     returned_results: list[HallOfFameMonthResult] = []
     for month, month_results in raw_results_per_month.items():
         winner_result = month_results[0]
+        winner_total_score = winner_result["total_score"] or 0
         winner_grand_total = winner_result["grand_total"] or 0
+        second_best_total_score = (
+            0 if len(month_results) < 2 else (month_results[1]["total_score"] or 0)
+        )
         second_best_grand_total = (
             0 if len(month_results) < 2 else (month_results[1]["grand_total"] or 0)
         )
@@ -48,6 +50,8 @@ def get_player_pair_hall_of_fame_monthly(
             HallOfFameMonthResult(
                 month=month,
                 winner=player_pair.get_player_by_ref(winner_result["winner"]),
+                winner_total_score=winner_total_score,
+                winner_grand_total=winner_grand_total,
                 game_counts=games_count,
                 wins_count=winner_result["wins_count"],
                 wins_percentage=(
@@ -55,7 +59,8 @@ def get_player_pair_hall_of_fame_monthly(
                     if games_count
                     else 0
                 ),
-                score_delta=winner_grand_total - second_best_grand_total,
+                total_score_delta=winner_total_score - second_best_total_score,
+                grand_total_delta=winner_grand_total - second_best_grand_total,
             )
         )
 

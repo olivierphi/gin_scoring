@@ -1,0 +1,39 @@
+<article id="current-month">
+    <header>This month: {{ current_month|date:"F Y" }}</header>
+    {% if current_month_results %}
+        <table>
+            <thead>
+                <tr>
+                    <th>player</th>
+                    <th>wins</th>
+                    <th>total points</th>
+                    <th>grand total</th>
+                    <th>delta</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in current_month_results %}
+                    <tr>
+                        <td>
+                            <span class="player-{{ entry.player.id }}">
+                                {{ entry.player.name }}
+                            </span>
+                            {% if forloop.first %}🏆{% endif %}
+                        </td>
+                        <td>
+                            {{ entry.wins_count }}
+                            <br><small>({{ entry.wins_percentage }}%)</small>
+                        </td>
+                        <td>{{ entry.total_score }}</td>
+                        <td>{{ entry.grand_total }}</td>
+                        <td>{{ entry.grand_total_delta|default_if_none:"-" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <br>
+        <ins>No games played yet this month.</ins>
+        <br>
+    {% endif %}
+</article>

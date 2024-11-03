@@ -1,0 +1,33 @@
+<details id="all-time-hall-of-fame">
+    <summary>All-time leaderboard ⏷</summary>
+    <table>
+        <thead>
+            <tr>
+                <th>player</th>
+                <th>wins</th>
+                <th>total points</th>
+                <th>grand total</th>
+                <th>delta</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in hall_of_fame %}
+                <tr>
+                    <td>
+                        <span class="player-{{ entry.player.id }}">
+                            {{ entry.player.name }}
+                        </span>
+                        {% if forloop.first %}🏆{% endif %}
+                    </td>
+                    <td>
+                        {{ entry.wins_count }}
+                        <br><small>({{ entry.wins_percentage }}%)</small>
+                    </td>
+                    <td>{{ entry.total_score }}</td>
+                    <td>{{ entry.grand_total }}</td>
+                    <td>{{ entry.grand_total_delta|default_if_none:"-" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</details>

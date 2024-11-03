@@ -81,5 +81,5 @@ def test_record_new_game_result_happy_path(client: Client, player_pair: "PlayerP
     assert result_in_db.player_pair == player_pair
     assert result_in_db.outcome == GameResultOutcome.GIN
     assert result_in_db.winner_name == "Alice"
-    assert result_in_db.deadwood_value == 6
+    assert result_in_db.deadwood == 6
     assert result_in_db.winner_score == 6 + 25

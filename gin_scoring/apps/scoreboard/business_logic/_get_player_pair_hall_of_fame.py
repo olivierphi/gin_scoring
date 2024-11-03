@@ -41,13 +41,14 @@ def get_player_pair_hall_of_fame(
         sum(row["wins_count"] for row in players_hall_of_fame) + draw_games_count
     )
 
-    previous_score = 0
+    previous_total_score = previous_grand_total = 0
     results: list[HallOfFameResult] = []
     for i, row in enumerate(players_hall_of_fame):
-        score_delta = row["grand_total"] - previous_score if i > 0 else None
+        total_score_delta = row["total_score"] - previous_total_score if i > 0 else None
+        grand_total_delta = row["grand_total"] - previous_grand_total if i > 0 else None
         results.append(
             HallOfFameResult(
-                winner=player_pair.get_player_by_ref(row["winner"]),
+                player=player_pair.get_player_by_ref(row["winner"]),
                 wins_count=row["wins_count"],
                 wins_percentage=(
                     int(row["wins_count"] / total_games_count * 100)
@@ -56,10 +57,12 @@ def get_player_pair_hall_of_fame(
                 ),
                 total_score=row["total_score"],
                 grand_total=row["grand_total"],
-                score_delta=score_delta,
+                total_score_delta=total_score_delta,
+                grand_total_delta=grand_total_delta,
             )
         )
-        previous_score = row["grand_total"]
+        previous_total_score = row["total_score"]
+        previous_grand_total = row["grand_total"]
 
     return (
         (results[0], results[1])
@@ -75,10 +78,11 @@ def get_empty_result(
     player_pair: "PlayerPair", player_ref: PlayerRef
 ) -> HallOfFameResult:
     return HallOfFameResult(
-        winner=player_pair.get_player_by_ref(player_ref),
+        player=player_pair.get_player_by_ref(player_ref),
         wins_count=0,
         wins_percentage=0,
         total_score=0,
         grand_total=0,
-        score_delta=0,
+        total_score_delta=0,
+        grand_total_delta=0,
     )
