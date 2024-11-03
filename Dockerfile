@@ -29,7 +29,7 @@ RUN chown -R 1001:1001 /app
 
 COPY --chown=1001:1001 --from=backend_build /app/.venv .venv
 
-COPY --chown=1001:1001 src src
+COPY --chown=1001:1001 gin_scoring gin_scoring
 COPY --chown=1001:1001 scripts scripts
 COPY --chown=1001:1001 manage.py Makefile pyproject.toml LICENSE ./
 
@@ -37,8 +37,6 @@ ENV PATH="/app/.venv/bin:$PATH"
 RUN python -V
 
 USER 1001:1001
-
-ENV PYTHONPATH="/app/src"
 
 RUN mkdir -p /app/staticfiles
 RUN DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.docker_build \

@@ -222,7 +222,7 @@
                                 <b>{{ result.winner_score }}</b>
                             {% else %}
                                 {{ result.winner_score }}
-                                {% if result.winner_score < 4 %}😱{% endif %}
+                                {% if result.winner_score < 4 and result.winner_score != 0 %}😱{% endif %}
                             {% endif %}
                         </td>
                     </tr>
