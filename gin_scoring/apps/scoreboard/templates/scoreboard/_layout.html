@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    {% load static %}
+    {% load scoreboard %}
+    <meta charset="utf-8">
+    <title>Gin Rummy hall of fame</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="{% pico_css %}">
+    <style>
+        /* In-document CSS! ~Dance~ Code like no one's watching 😅 */
+
+        article > header, details > summary {
+            background-color: var(--pico-secondary-focus);
+            font-weight: bold;
+        }
+        details > summary {
+            cursor: pointer;
+        }
+        details > summary {
+            /* Let's make the "details" block look like an "article" one */
+            padding: calc(var(--pico-block-spacing-vertical) * 0.66) var(--pico-block-spacing-horizontal);
+            border-bottom: var(--pico-border-width) solid var(--pico-card-border-color);
+            border-top-right-radius: var(--pico-border-radius);
+            border-top-left-radius: var(--pico-border-radius);
+        }
+        
+        @media (max-width: 1250px) {
+            .container, article {
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            article > header {
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            form {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+
+        h1 {
+            color: var(--pico-primary-background);
+            text-align: center;
+        }
+
+        form .form-errors ul {
+            display: inline-block;
+            padding-left: 0;
+        }
+
+        form .form-errors ul > li {
+            list-style-type: none;
+            color: var(--pico-form-element-invalid-focus-color);
+        }
+
+        .messages {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .messages .success {
+            color: var(--pico-form-element-valid-border-color);
+        }
+
+        .messages .error {
+            color: var(--pico-form-element-invalid-border-color);
+        }
+    </style>
+    {% block extrahead %}
+    {% endblock %}
+</head>
+<body>
+    <main class="container">
+        <h1>Gin Rummy hall of fame</h1>
+        <hr>
+        {% if messages %}
+            <article class="messages">
+                {% for message in messages %}
+                    <p{% if message.tags %}
+                        class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+                {% endfor %}
+            </article>
+        {% endif %}
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    {% if request.user.is_authenticated %}
+        <footer>
+            <form action="{% url "scoreboard:log_out" %}" method="post">
+                {% csrf_token %}
+                <button id="log-out-button" type="submit">
+                    {# Heroicon: arrow-left-start-on-rectangle #}
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                         viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                         style="width: 19px; aspect-ratio: 1/1;">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"/>
+                    </svg>
+                    Log out
+                </button>
+            </form>
+        </footer>
+    {% endif %}
+</body>
+</html>

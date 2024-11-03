@@ -1,0 +1,41 @@
+{% extends "scoreboard/_layout.html" %}
+
+{% block extrahead %}
+    <style>
+        /* In-document CSS! ~Dance~ Code like no one's watching 😅 */
+        .player-1, .player-2 {
+            font-weight: bold;
+        }
+        .player-1 {
+            color: {{ players.0.color }};
+        }
+        .player-2 {
+            color: {{ players.1.color }};
+        }
+
+        article table th, details table th {
+            color: var(--pico-primary);
+        }
+
+        #new-game-form-outcome div {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #new-game-form-outcome div label {
+            min-width: 30%
+        }
+    </style>
+{% endblock extrahead %}
+
+{% block content %}
+    {% include "scoreboard/_new_game_result_form.html" with form=form csrf_token=csrf_token players=players only %}
+    <hr>
+    {% include "scoreboard/_all_time_leaderboard.html" with hall_of_fame=hall_of_fame total_games_count=total_games_count first_game_date=first_game_date only %}
+    <hr>
+    {% include "scoreboard/_current_month.html" with current_month=current_month current_month_results=current_month_results only %}
+    <hr>
+    {% include "scoreboard/_monthly_leaderboard.html" with hall_of_fame_monthly=hall_of_fame_monthly current_month=current_month last_month_result=last_month_result only %}
+    <hr>
+    {% include "scoreboard/_last_games.html" with last_game_results=last_game_results only %}
+{% endblock %}

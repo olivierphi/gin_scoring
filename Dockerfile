@@ -29,7 +29,7 @@ RUN chown -R 1001:1001 /app
 
 COPY --chown=1001:1001 --from=backend_build /app/.venv .venv
 
-COPY --chown=1001:1001 src src
+COPY --chown=1001:1001 gin_scoring gin_scoring
 COPY --chown=1001:1001 scripts scripts
 COPY --chown=1001:1001 manage.py Makefile pyproject.toml LICENSE ./
 
@@ -38,15 +38,15 @@ RUN python -V
 
 USER 1001:1001
 
-ENV PYTHONPATH="/app/src"
-
 RUN mkdir -p /app/staticfiles
-RUN DJANGO_SETTINGS_MODULE=project.settings.docker_build \
+RUN DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.docker_build \
+    .venv/bin/python manage.py generate_assets
+RUN DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.docker_build \
     .venv/bin/python manage.py collectstatic --noinput
 
 EXPOSE 8080
 
-ENV DJANGO_SETTINGS_MODULE=project.settings.production
+ENV DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.production
 
 ENV GUNICORN_CMD_ARGS="--bind 0.0.0.0:8080 --workers 2 --max-requests 120 --max-requests-jitter 20 --timeout 8"
 

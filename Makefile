@@ -1,7 +1,7 @@
 PYTHON_VERSION ?= 3.11
 PYTHON_BIN ?= ./.venv/bin
 PYTHON ?= ${PYTHON_BIN}/python
-DJANGO_SETTINGS_MODULE ?= project.settings.development
+DJANGO_SETTINGS_MODULE ?= gin_scoring.project.settings.development
 SUB_MAKE = ${MAKE} --no-print-directory
 
 .DEFAULT_GOAL := help
@@ -37,12 +37,12 @@ code-quality/all: code-quality/black code-quality/isort code-quality/mypy  ## Ru
 code-quality/black: black_opts ?=
 code-quality/black: ## Automated 'a la Prettier' code formatting
 # @link https://black.readthedocs.io/en/stable/
-	@${PYTHON_BIN}/black ${black_opts} src/ tests/
+	@${PYTHON_BIN}/black ${black_opts} gin_scoring/ tests/
 
 .PHONY: code-quality/isort
 code-quality/isort: isort_opts ?=
 code-quality/isort: ## Automated Python imports formatting
-	@${PYTHON_BIN}/isort --settings-file=pyproject.toml ${isort_opts} src/ tests/
+	@${PYTHON_BIN}/isort --settings-file=pyproject.toml ${isort_opts} gin_scoring/ tests/
 
 .PHONY: code-quality/mypy
 code-quality/mypy: mypy_opts ?=
@@ -51,7 +51,7 @@ code-quality/mypy: ## Python's equivalent of TypeScript
 # @link https://mypy.readthedocs.io/en/stable/
 	@DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE} \
 		${PYTHON_BIN}/dotenv -f '${dotenv_file}' run -- \
-			${PYTHON_BIN}/mypy src/ ${mypy_opts}
+			${PYTHON_BIN}/mypy gin_scoring/ ${mypy_opts}
 
 django/manage: env_vars ?= 
 django/manage: dotenv_file ?= .env.local
@@ -112,7 +112,7 @@ docker/local/run: ## Docker: launch the previously built image, listening on por
 	docker run -p ${port_exposed}:${port} -v "${PWD}/.docker/:/app/shared_volume/" \
 		-u ${user_id} \
 		${docker_env} ${docker_args} \
-		-e DJANGO_SETTINGS_MODULE=project.settings.production \
+		-e DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.production \
 		-e GUNICORN_CMD_ARGS='${GUNICORN_CMD_ARGS}' \
 		${DOCKER_IMG_NAME}:${DOCKER_TAG} \
 		${cmd}
@@ -127,7 +127,7 @@ docker/local/shell:
 	docker run -v "${PWD}/.docker/:/app/shared_volume/" \
 		-u ${user_id} \
 		${docker_env} ${docker_args} \
-		-e DJANGO_SETTINGS_MODULE=project.settings.production \
+		-e DJANGO_SETTINGS_MODULE=gin_scoring.project.settings.production \
 		--entrypoint ${cmd} \
 		${DOCKER_IMG_NAME}:${DOCKER_TAG} \
 		${entrypoint_args}
@@ -147,10 +147,11 @@ fly.io/ssh: ## Fly.io: start a SSH session within our app
 	flyctl ssh console
                 
 .PHONY: fly.io/db/local_backup
+fly.io/db/local_backup: remote_db_name ?= gin-scoring.mutiplayer.prod.sqlite3
 fly.io/db/local_backup: backup_name ?= $$(date --iso-8601=seconds | cut -d + -f 1)
 fly.io/db/local_backup: ## Fly.io: backup the SQLite database locally
-	@flyctl ssh sftp get /sqlite_dbs/gin-scoring.prod.sqlite3
-	@mv gin-scoring.prod.sqlite3 "gin-scoring.prod.backup.${backup_name}.sqlite3"
+	@flyctl ssh sftp get "/sqlite_dbs/${remote_db_name}"
+	@mv "${remote_db_name}" "gin-scoring.prod.backup.${backup_name}.sqlite3"
 	@echo "Saved to 'gin-scoring.prod.backup.${backup_name}.sqlite3'"
                 
 .PHONY: fly.io/db/prod_to_local

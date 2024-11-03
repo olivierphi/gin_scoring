@@ -1,0 +1,41 @@
+<article id="last-games">
+    <header>Last games</header>
+    <table>
+        <thead>
+            <tr>
+                <th>date</th>
+                <th>outcome</th>
+                <th>winner</th>
+                <th>score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in last_game_results %}
+                <tr>
+                    <td>{{ result.created_at|date:"D jS M H:i" }}</td>
+                    <td>
+                        <b>{{ result.get_outcome_display }}</b>
+                        {% if result.deadwood %}
+                            <br>
+                            <small>deadwood:&nbsp;{{ result.deadwood }}</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                            <span class="player-{{ result.winner }}">
+                                {{ result.winner_name|default_if_none:"-" }}
+                            </span>
+                    </td>
+                    <td>
+                        {% if result.winner_score > 20 %}
+                            <b>{{ result.winner_score }}</b>🌟
+                        {% else %}
+                            {{ result.winner_score }}
+                            {% if result.winner_score < 4 and result.winner_score != 0 %}
+                                😱{% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</article>
