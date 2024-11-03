@@ -57,7 +57,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("Game created successfully"))
         for field_name, field_getter in (
             ("outcome", lambda r: r.get_outcome_display()),
-            ("deadwood_value", lambda r: r.deadwood_value),
+            ("deadwood", lambda r: r.deadwood),
             ("winner", lambda r: r.winner_name),
             ("winner_score", lambda r: r.winner_score),
             ("created_at", lambda r: r.created_at),

@@ -5,9 +5,7 @@ from typing import Literal
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from gin_scoring.lib.gin_rummy.rules import calculate_round_score
-
-from .models import GAME_OUTCOMES_MAPPING, GameResult, GameResultOutcome, PlayerPair
+from .models import GameResult, GameResultOutcome, PlayerPair
 
 _OUTCOME_MAPPING: dict[str, GameResultOutcome] = {
     "draw": GameResultOutcome.DRAW,
@@ -80,7 +78,7 @@ def create_test_game(
 
     game_result = GameResult.objects.create(
         player_pair=player_pair,
-        deadwood_value=deadwood,
+        deadwood=deadwood,
         outcome=game_outcome,
         winner=int(winner) if winner is not None else None,
     )

@@ -76,9 +76,23 @@ WSGI_APPLICATION = "gin_scoring.project.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.config(
-        default="sqlite:///db.sqlite3",
-    )
+    "default": {
+        **dj_database_url.config(
+            default="sqlite:///db.sqlite3",
+        ),
+        "OPTIONS": {
+            # https://blog.pecar.me/sqlite-django-config#in-django-51-or-newer
+            "transaction_mode": "IMMEDIATE",
+            "timeout": 5,  # seconds
+            "init_command": """
+                PRAGMA journal_mode=WAL;
+                PRAGMA synchronous=NORMAL;
+                PRAGMA mmap_size = 134217728;
+                PRAGMA journal_size_limit = 27103364;
+                PRAGMA cache_size=2000;
+            """,
+        },
+    }
 }
 
 # Sessions

@@ -37,7 +37,7 @@ def index(request: "HttpRequest") -> HttpResponse:
         if form.is_valid():
             GameResult.objects.create(
                 player_pair=player_pair,
-                deadwood_value=form.cleaned_data["deadwood"],
+                deadwood=form.cleaned_data["deadwood"],
                 outcome=form.cleaned_data["outcome"],
                 winner=form.cleaned_data["winner"],
             )

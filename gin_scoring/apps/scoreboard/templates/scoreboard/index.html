@@ -160,15 +160,28 @@
             <tbody>
                 {% for entry in hall_of_fame_monthly %}
                     <tr>
-                        <td>{{ entry.month|date:"M Y" }}</td>
-                        <td><span
-                            class="player-{{ entry.winner.id }}">{{ entry.winner.name }}</span>
+                        <td>
+                            {{ entry.month|date:"M Y" }}
+                            <br><b>{{ entry.game_counts }}</b> games
                         </td>
                         <td>
-                            {{ entry.wins_count }} / {{ entry.game_counts }}
-                            <br><small>({{ entry.wins_percentage }}%)</small>
+                            <span class="player-{{ entry.winner.id }}">
+                                {{ entry.winner.name }}
+                            </span>
                         </td>
-                        <td>{{ entry.score_delta }}</td>
+                        <td>
+                            {% if entry.wins_percentage >= 80 %}
+                                <b>{{ entry.wins_percentage }}%</b>
+                                {% if entry.wins_percentage == 100 %}😱{% endif %}
+                            {% else %}
+                                {{ entry.wins_percentage }}%
+                            {% endif %}
+                            <br><small>({{ entry.wins_count }} wins)</small>
+                        </td>
+                        <td>
+                            {{ entry.score_delta }}
+                            {% if entry.score_delta < 10 %}😱{% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -191,18 +204,27 @@
             <tbody>
                 {% for result in last_game_results %}
                     <tr>
-                        <td>{{ result.created_at|date:"D jS M Y" }}</td>
+                        <td>{{ result.created_at|date:"D jS M H:i" }}</td>
                         <td>
                             {{ result.get_outcome_display }}
-                            {% if result.deadwood_value %}
+                            {% if result.deadwood %}
                                 <br>
-                                <small>(deadwood: {{ result.deadwood_value }})</small>
+                                <small>deadwood:&nbsp;{{ result.deadwood }}</small>
                             {% endif %}
                         </td>
-                        <td><span
-                            class="player-{{ result.winner }}">{{ result.winner_name|default_if_none:"-" }}</span>
+                        <td>
+                            <span class="player-{{ result.winner }}">
+                                {{ result.winner_name|default_if_none:"-" }}
+                            </span>
                         </td>
-                        <td>{{ result.winner_score }}</td>
+                        <td>
+                            {% if result.winner_score > 20 %}
+                                <b>{{ result.winner_score }}</b>
+                            {% else %}
+                                {{ result.winner_score }}
+                                {% if result.winner_score < 4 %}😱{% endif %}
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

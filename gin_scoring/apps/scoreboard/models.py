@@ -1,20 +1,17 @@
 import datetime as dt
 import enum
-from collections import defaultdict
 from functools import cached_property
 from typing import TYPE_CHECKING, Literal, NamedTuple
 
 from colorfield.fields import ColorField
 from django.db import models
-from django.db.models import Count, Q, Sum
-from django.db.models.functions import TruncMonth
 from django.utils.translation import gettext_lazy as _
 
 from gin_scoring.lib.gin_rummy.consts import GameOutcome
 from gin_scoring.lib.gin_rummy.rules import calculate_round_score
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Sequence
 
 
 @enum.unique
@@ -83,27 +80,6 @@ class PlayerPair(models.Model):
 
 
 class GameResultManager(models.Manager):
-    def create(self, winner_score=None, **kwargs) -> "GameResult":  # type: ignore[override]
-        if winner_score is not None:
-            raise ValueError("The `winner_score` field must be set by the manager")
-
-        # This method is here to make sure we always set the `winner_score` field
-        # based on the `outcome` and `deadwood_value` fields:
-        outcome = kwargs["outcome"]
-        assert isinstance(outcome, GameResultOutcome)
-        deadwood_value = kwargs["deadwood_value"]
-
-        if outcome is GameResultOutcome.DRAW:
-            kwargs["winner"] = None
-            kwargs["deadwood_value"] = 0
-            winner_score = 0
-        else:
-            game_outcome_domain = GAME_OUTCOMES_MAPPING[outcome]
-            winner_score = calculate_round_score(
-                game_outcome=game_outcome_domain, deadwood_value=deadwood_value
-            )
-
-        return super().create(winner_score=winner_score, **kwargs)  # type: ignore[return-value]
 
     @staticmethod
     def get_player_pair_last_game_results(
@@ -144,14 +120,21 @@ class GameResult(models.Model):
     outcome = models.PositiveSmallIntegerField(choices=GameResultOutcome)
     # These 2 ones can be `null` when the outcome is `draw`:
     winner = models.PositiveSmallIntegerField(choices=PlayerRef, null=True)
-    deadwood_value = models.PositiveSmallIntegerField(null=True)
-    # Computed from the previous `outcome` and `deadwood_value` fields:
+    deadwood = models.PositiveSmallIntegerField(null=True)
+    # Computed from the previous `outcome` and `deadwood` fields:
     winner_score = models.PositiveSmallIntegerField(null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = GameResultManager()
+
+    def save(self, **kwargs) -> None:  # type: ignore[override]
+        # The `winner_score` field should always be based on the `outcome` and
+        # `deadwood` fields, rather than set externally:
+        self._set_winner_score_from_outcome_and_deadwood()
+
+        return super().save(**kwargs)
 
     @property
     def is_draw(self) -> bool:
@@ -180,6 +163,20 @@ class GameResult(models.Model):
 
     def __str__(self) -> str:
         return f"{self.player_1_name.title()} vs {self.player_2_name.title()}, on {self.created_at.strftime('%a %d %b at %H:%M')}"
+
+    def _set_winner_score_from_outcome_and_deadwood(self) -> None:
+        assert isinstance(self.outcome, GameResultOutcome)
+        assert self.deadwood is not None
+
+        if self.outcome is GameResultOutcome.DRAW:
+            self.winner = None
+            self.deadwood = 0
+            self.winner_score = 0
+        else:
+            game_outcome_domain = GAME_OUTCOMES_MAPPING[self.outcome]
+            self.winner_score = calculate_round_score(
+                game_outcome=game_outcome_domain, deadwood=self.deadwood
+            )
 
 
 class HallOfFameResult(NamedTuple):

@@ -10,12 +10,9 @@ set -o errexit
 # initialised some environment variables in the Dockerfile, 
 # such as DJANGO_SETTINGS_MODULE and GUNICORN_CMD_ARGS.
 
-# TODO: remove this once we have a proper deployment pipeline
+# TODO: remove this once we have a proper deployment pipeline?
 echo "Running Django migrations."
 .venv/bin/python manage.py migrate --noinput
-
-echo "Make sure the SQLite database is always optimised."
-.venv/bin/python scripts/optimise_db.py
 
 # Go!
 echo "Starting Gunicorn."
