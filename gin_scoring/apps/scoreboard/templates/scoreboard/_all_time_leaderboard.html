@@ -1,5 +1,9 @@
 <details id="all-time-hall-of-fame">
     <summary>All-time leaderboard ⏷</summary>
+    {% if total_games_count > 0 %}
+        <ins>You played <b>{{ total_games_count }}</b> games since {{ first_game_date|date:"F Y" }}.</ins>
+    {% endif %}
+    <br>
     <table>
         <thead>
             <tr>

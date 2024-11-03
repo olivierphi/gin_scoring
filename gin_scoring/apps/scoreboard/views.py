@@ -60,6 +60,14 @@ def index(request: "HttpRequest") -> HttpResponse:
         player_pair
     )
 
+    total_games_count = GameResult.objects.filter(player_pair=player_pair).count()
+    first_game_date = (
+        GameResult.objects.filter(player_pair=player_pair)
+        .values_list("created_at", flat=True)
+        .order_by("created_at")
+        .first()
+    )
+
     current_month = now().date().replace(day=1)
     current_month_results = None
     if hall_of_fame_monthly:
@@ -80,6 +88,8 @@ def index(request: "HttpRequest") -> HttpResponse:
             "form": form,
             "players": player_pair.players,
             "last_game_results": last_game_results,
+            "total_games_count": total_games_count,
+            "first_game_date": first_game_date,
             "hall_of_fame": hall_of_fame,
             "hall_of_fame_monthly": hall_of_fame_monthly,
             "current_month": current_month,
