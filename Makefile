@@ -15,7 +15,7 @@ install: check-python-version check-pipx .venv ## Install the Python dependencie
 # Install Python dependencies:
 	pipx run poetry==${poetry_version} install
 # Install pre-commit hooks:
-	${PYTHON_BINS}/pre-commit install
+	${PYTHON_BIN}/pre-commit install
 
 dev: address ?= localhost
 dev: port ?= 8000
@@ -63,7 +63,7 @@ django/manage: .venv .env.local ## Run a Django management command
 			${PYTHON} manage.py ${cmd}
 
 .venv: ## Initialises the Python virtual environment in a ".venv" folder
-	@python -m venv .venv
+	@python -m venv .venv --prompt .gin-scoring.venv
 
 .env.local: ## Copies the ".env.dist" file to ".env.local" (git-ignored)
 	cp .env.dist .env.local
