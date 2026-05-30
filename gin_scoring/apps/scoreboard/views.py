@@ -1,6 +1,7 @@
 from http import HTTPStatus
 from typing import TYPE_CHECKING
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.http import HttpResponse, HttpResponseRedirect
@@ -52,6 +53,7 @@ def index(request: "HttpRequest") -> HttpResponse:
     else:
         form = NewGameResultForm()
 
+    bonus_per_round = settings.GIN_RUMMY_BONUS_PER_ROUND
     last_game_results = GameResult.objects.get_player_pair_last_game_results(
         player_pair
     )
@@ -87,6 +89,7 @@ def index(request: "HttpRequest") -> HttpResponse:
         {
             "form": form,
             "players": player_pair.players,
+            "bonus_per_round": bonus_per_round,
             "last_game_results": last_game_results,
             "total_games_count": total_games_count,
             "first_game_date": first_game_date,

@@ -10,7 +10,7 @@
                 <th>player</th>
                 <th>wins</th>
                 <th>total points</th>
-                <th>grand total</th>
+                {% if bonus_per_round > 0 %}<th>grand total</th>{% endif %}
                 <th>delta</th>
             </tr>
         </thead>
@@ -28,7 +28,7 @@
                         <br><small>({{ entry.wins_percentage }}%)</small>
                     </td>
                     <td>{{ entry.total_score }}</td>
-                    <td>{{ entry.grand_total }}</td>
+                    {% if bonus_per_round > 0 %}<td>{{ entry.grand_total }}</td>{% endif %}
                     <td>{{ entry.grand_total_delta|default_if_none:"-" }}</td>
                 </tr>
             {% endfor %}

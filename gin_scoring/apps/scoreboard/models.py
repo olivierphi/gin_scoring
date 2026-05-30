@@ -129,6 +129,8 @@ class GameResult(models.Model):
     def save(self, **kwargs) -> None:  # type: ignore[override]
         # The `winner_score` field should always be based on the `outcome` and
         # `deadwood` fields, rather than set externally:
+        if isinstance(self.outcome, int):
+            self.outcome = GameResultOutcome(self.outcome)
         self._set_winner_score_from_outcome_and_deadwood()
 
         return super().save(**kwargs)

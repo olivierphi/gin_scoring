@@ -2,6 +2,7 @@ import datetime as dt
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
+from django.conf import settings
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncMonth
 
@@ -18,6 +19,8 @@ def get_player_pair_hall_of_fame_monthly(
     wins_count = Count("winner_score")
     total_score = Sum("winner_score")
 
+    bonus_per_round = settings.GIN_RUMMY_BONUS_PER_ROUND
+
     raw_results = (
         GameResult.objects.filter(player_pair=player_pair)
         .filter(winner__isnull=False)
@@ -25,8 +28,8 @@ def get_player_pair_hall_of_fame_monthly(
         .values("month", "winner")
         .distinct()
         .annotate(wins_count=wins_count, total_score=total_score)
-        # Each won round is worth 25 points:
-        .annotate(grand_total=(wins_count * 25) + total_score)
+        # Each won round is worth 25 points, or 0 depending on the variant we chose to run:
+        .annotate(grand_total=(wins_count * bonus_per_round) + total_score)
         .order_by("-month", "-grand_total")
     )
     raw_results_per_month: dict[dt.datetime, list[dict]] = defaultdict(list)

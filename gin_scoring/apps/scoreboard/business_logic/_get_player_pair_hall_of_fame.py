@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
-from django.db.models import Count, Q, Sum
+from django.conf import settings
+from django.db.models import Count, Sum
 
 from ..models import GameResult, HallOfFameResult, PlayerRef
 
@@ -19,14 +20,16 @@ def get_player_pair_hall_of_fame(
     wins_count = Count("winner_score")
     total_score = Sum("winner_score")
 
+    bonus_per_round = settings.GIN_RUMMY_BONUS_PER_ROUND
+
     hall_of_fame_query_set = (
         GameResult.objects.filter(player_pair=player_pair)
         .filter(winner__isnull=False)
         .values("winner")
         .distinct()
         .annotate(wins_count=wins_count, total_score=total_score)
-        # Each won round is worth 25 points:
-        .annotate(grand_total=(wins_count * 25) + total_score)
+        # Each won round is worth 25 points, or 0 depending on the variant we chose to run:
+        .annotate(grand_total=(wins_count * bonus_per_round) + total_score)
         .order_by("-grand_total")
     )
 
