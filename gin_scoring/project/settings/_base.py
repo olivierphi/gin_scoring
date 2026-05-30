@@ -153,6 +153,9 @@ STATIC_DOWNLOADED_ASSETS_DIR = (
     BASE_DIR / "gin_scoring" / "apps" / "scoreboard" / "static" / "scoreboard"
 )
 
+# Usually 0 or 25:
+GIN_RUMMY_BONUS_PER_ROUND = int(env.get("GIN_RUMMY_BONUS_PER_ROUND", 0))
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
