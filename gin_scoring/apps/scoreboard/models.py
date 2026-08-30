@@ -118,7 +118,8 @@ class GameResult(models.Model):
     # These 2 ones can be `null` when the outcome is `draw`:
     winner = models.PositiveSmallIntegerField(choices=PlayerRef, null=True)
     deadwood = models.PositiveSmallIntegerField(null=True)
-    # Computed from the previous `outcome` and `deadwood` fields:
+    double_score = models.BooleanField(default=False)
+    # Computed from the previous `outcome`, `deadwood` and `double_score` fields:
     winner_score = models.PositiveSmallIntegerField(null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -176,6 +177,8 @@ class GameResult(models.Model):
             self.winner_score = calculate_round_score(
                 game_outcome=game_outcome_domain, deadwood=self.deadwood
             )
+            if self.double_score:
+                self.winner_score *= 2
 
 
 class HallOfFameResult(NamedTuple):

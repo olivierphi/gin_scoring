@@ -19,6 +19,10 @@
                             <br>
                             <small>deadwood:&nbsp;{{ result.deadwood }}</small>
                         {% endif %}
+                        {% if result.double_score %}
+                            <br>
+                            <small>♠️ double score</small>
+                        {% endif %}
                     </td>
                     <td>
                             <span class="player-{{ result.winner }}">

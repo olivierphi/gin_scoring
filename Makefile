@@ -155,10 +155,11 @@ fly.io/db/local_backup: ## Fly.io: backup the SQLite database locally
 	@echo "Saved to 'gin-scoring.prod.backup.${backup_name}.sqlite3'"
                 
 .PHONY: fly.io/db/prod_to_local
+fly.io/db/prod_to_local: remote_db_name ?= gin-scoring.mutiplayer.prod.sqlite3
 fly.io/db/prod_to_local: local_db ?= ./db.sqlite3
 fly.io/db/prod_to_local: backup_name ?= ./db.local.backup.$$(date --iso-8601=seconds | cut -d + -f 1).sqlite3
 fly.io/db/prod_to_local: ## Fly.io: replace our local SQLite database with the one from the prod environment
 	@mv "${local_db}" "${backup_name}"
-	@flyctl ssh sftp get /sqlite_dbs/gin-scoring.prod.sqlite3
-	@mv gin-scoring.prod.sqlite3 "${local_db}"
+	@flyctl ssh sftp get "/sqlite_dbs/${remote_db_name}"
+	@mv "${remote_db_name}" "${local_db}"
 	@echo "Replaced local DB with a copy from the production DB. The previous local DB has been saved as '${backup_name}'."

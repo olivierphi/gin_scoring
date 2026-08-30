@@ -46,6 +46,7 @@ def index(request: "HttpRequest") -> HttpResponse:
                 deadwood=form.cleaned_data["deadwood"],
                 outcome=form.cleaned_data["outcome"],
                 winner=form.cleaned_data["winner"],
+                double_score=form.cleaned_data["double_score"],
             )
             return HttpResponseRedirect(
                 f"{resolve_url('scoreboard:index')}#current-month"

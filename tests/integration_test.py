@@ -83,3 +83,94 @@ def test_record_new_game_result_happy_path(client: Client, player_pair: "PlayerP
     assert result_in_db.winner_name == "Alice"
     assert result_in_db.deadwood == 6
     assert result_in_db.winner_score == 6 + 25
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("outcome", "deadwood", "double_score", "expected_winner_score"),
+    (
+        (
+            GameResultOutcome.KNOCK,
+            6,
+            False,
+            6,
+        ),
+        (
+            GameResultOutcome.KNOCK,
+            6,
+            True,
+            6 * 2,
+        ),
+        (
+            GameResultOutcome.GIN,
+            6,
+            False,
+            6 + 25,
+        ),
+        (
+            GameResultOutcome.GIN,
+            6,
+            True,
+            (6 + 25) * 2,
+        ),
+        (
+            GameResultOutcome.UNDERCUT,
+            6,
+            False,
+            6 + 15,
+        ),
+        (
+            GameResultOutcome.UNDERCUT,
+            6,
+            True,
+            (6 + 15) * 2,
+        ),
+        (
+            GameResultOutcome.BIG_GIN,
+            6,
+            False,
+            6 + 31,
+        ),
+        (
+            GameResultOutcome.BIG_GIN,
+            6,
+            True,
+            (6 + 31) * 2,
+        ),
+    ),
+)
+def test_double_score(
+    client: Client,
+    player_pair: "PlayerPair",
+    outcome: GameResultOutcome,
+    deadwood: int,
+    double_score: bool,
+    expected_winner_score: int,
+):
+    """Checks the "spades = double score" variant of the Oklahoma Gin"""
+    user = player_pair.user
+    client.force_login(user)
+
+    data = {
+        "outcome": str(outcome),
+        "winner": str(PlayerRef.PLAYER_1),
+        "deadwood": str(deadwood),
+        "double_score": "1" if double_score else "",
+    }
+    response = client.post("/", data)
+    assert response.status_code == HTTPStatus.FOUND
+
+    results_in_db = GameResult.objects.all()
+    assert len(results_in_db) == 1
+    result_in_db: GameResult = results_in_db[0]
+
+    assert isinstance(result_in_db.created_at, datetime)
+    now = timezone.now()
+    assert (now - result_in_db.created_at).total_seconds() < 2
+
+    assert result_in_db.player_pair == player_pair
+    assert result_in_db.outcome == outcome
+    assert result_in_db.winner_name == "Alice"
+    assert result_in_db.deadwood == deadwood
+    assert result_in_db.double_score == double_score
+    assert result_in_db.winner_score == expected_winner_score

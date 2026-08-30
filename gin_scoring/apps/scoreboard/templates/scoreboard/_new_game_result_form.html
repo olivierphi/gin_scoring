@@ -65,9 +65,28 @@
                 </ins>
             </label>
         </fieldset>
-
+    
+        <fieldset>
+            <legend>Double score</legend>
+                <label>
+                    <input type="checkbox" name="double_score"
+                           aria-describedby="double-score-helper"
+                           {% if form.cleaned_data.double_score %}checked{% endif %}
+                           {% if form.double_score.errors %}aria-invalid="true"{% endif %}
+                    >
+                    <span>♠️</span>
+                </label>
+            <ins id="double-score-helper">
+                <small>
+                    Check if the game was using the <code>"spades = double score"</code>
+                    variant of the Oklahoma Gin.
+                </small>
+            </ins>
+        </fieldset>
+    
         <button
             type="submit"
+            style="margin-top: 2rem;"
         >
             {# Heroicon: plus-circle #}
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"

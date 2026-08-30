@@ -15,12 +15,14 @@ class NewGameResultForm(forms.Form):
     outcome = forms.ChoiceField(choices=GameResultOutcome)
     winner = forms.ChoiceField(choices=PlayerRef, required=False)
     deadwood = forms.IntegerField(min_value=0, max_value=100, required=False)
+    double_score = forms.BooleanField(required=False)
 
     def clean(self):
         cleaned_data = super().clean()
 
         outcome = GameResultOutcome(int(cleaned_data["outcome"]))
         cleaned_data["outcome"] = outcome
+        cleaned_data["double_score"] = bool(cleaned_data.get("double_score"))
 
         if outcome is GameResultOutcome.DRAW:
             cleaned_data["winner"] = None
@@ -43,6 +45,7 @@ class NewGameResultForm(forms.Form):
             outcome: Literal[GameResultOutcome.DRAW]
             winner: None
             deadwood: Literal[0]
+            double_score: bool
 
         class CleanedDataNonDraw(TypedDict):
             outcome: Literal[
@@ -53,6 +56,7 @@ class NewGameResultForm(forms.Form):
             ]
             winner: PlayerRef
             deadwood: int
+            double_score: bool
 
         @property
         def cleaned_data(self) -> CleanedDataDraw | CleanedDataNonDraw:  # type: ignore[override]
